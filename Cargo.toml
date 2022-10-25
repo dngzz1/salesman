@@ -1,0 +1,12 @@
+[package]
+name = "salesman"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rand = "0.8.4"
+plotters = "0.3.4"
+ordered-float = "3.3.0"
+permutations = "0.1.1"
