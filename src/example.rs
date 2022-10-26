@@ -26,14 +26,24 @@ pub fn rand_points(num_points: usize) -> Vec<(f32, f32)> {
     points
 }
 
-pub fn rand_block(n_rows: usize, n_cols: usize, delta_row: f32, delta_col: f32) -> Block {
-    let width = delta_row * n_rows as f32;
-    let height = delta_col * n_cols as f32;
-    let max_x = 1.0 - width as f32;
-    let max_y = 1.0 - height as f32;
-    let top_left_x = rand::thread_rng().gen_range(-1.0..max_x);
-    let top_left_y = rand::thread_rng().gen_range(-1.0..max_y);
-    let top_left = (top_left_x, top_left_y);
-    let block = Block::new(n_rows, n_cols, delta_row, delta_col, top_left);
-    block
+pub fn rand_n_blocks(
+    n_rows: usize,
+    n_cols: usize,
+    delta_row: f32,
+    delta_col: f32,
+    n: usize,
+) -> Vec<Block> {
+    let mut blocks = Vec::new();
+    while blocks.len() < n {
+        let mut new_block;
+        loop {
+            new_block = Block::new_rand(n_rows, n_cols, delta_row, delta_col, -1.0..1.0, -1.0..1.0);
+            let overlapped = blocks.iter().any(|block| overlapping(block, &new_block));
+            if !overlapped {
+                blocks.push(new_block);
+                break;
+            }
+        }
+    }
+    blocks
 }
