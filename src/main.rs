@@ -1,11 +1,13 @@
 use plotters::prelude::*;
-pub mod helper;
-use helper::*;
+pub mod example;
+use example::*;
+use salesman::anneal::*;
 
 fn main() {
     // Solve travelling salesman.
-    let rand_points = rand_points(40);
-    let points = salesman::shortest_path(&rand_points, 1);
+    let rand_block = rand_block(5, 6, 0.05, 0.08);
+    let rand_points = rand_block.points;
+    let points = shortest_path(&rand_points, 1);
     let salesman_loop;
     {
         let mut temp = points.clone();
