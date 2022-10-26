@@ -5,7 +5,7 @@ use salesman::anneal::*;
 
 fn main() {
     // Solve travelling salesman.
-    let rand_blocks = rand_n_blocks(5, 6, 0.05, 0.08, 5);
+    let rand_blocks = rand_n_blocks(5, 7, 0.16, 0.08, 1);
     let rand_points;
     {
         let mut temp_points = Vec::new();

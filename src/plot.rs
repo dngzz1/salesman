@@ -2,7 +2,7 @@ use plotters::prelude::*;
 
 pub fn plot(_points: &[(f32, f32)]) {
     // generate loop from points.
-    let points = _points.iter().map(|&x| x).collect::<Vec<_>>();
+    let points = _points.to_vec();
     let salesman_loop;
     {
         let mut temp = points.clone();
