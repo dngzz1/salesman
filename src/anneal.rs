@@ -67,29 +67,28 @@ impl Path {
         s
     }
 
-    fn delta_distance2(&self, i: usize, j: usize) -> f32 {
-        let original_order = self.order.clone();
-        let swapped_order;
-        {
-            let mut vec = original_order.clone();
-            vec.swap(i, j);
-            swapped_order = vec;
-        }
-        let mut original_distance = 0.0;
-        let mut swapped_distance = 0.0;
-        for i in 0..self.length {
-            let j = (i + 1) % self.length;
-            original_distance += self.distance(original_order[i], original_order[j]);
-            swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
-        }
-        swapped_distance - original_distance
-    }
+    // fn delta_distance2(&self, i: usize, j: usize) -> f32 {
+    //     let original_order = self.order.clone();
+    //     let swapped_order;
+    //     {
+    //         let mut vec = original_order.clone();
+    //         vec.swap(i, j);
+    //         swapped_order = vec;
+    //     }
+    //     let mut original_distance = 0.0;
+    //     let mut swapped_distance = 0.0;
+    //     for i in 0..self.length {
+    //         let j = (i + 1) % self.length;
+    //         original_distance += self.distance(original_order[i], original_order[j]);
+    //         swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
+    //     }
+    //     swapped_distance - original_distance
+    // }
 
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
         let j = self.random_pos();
         let delta = self.delta_distance(i, j);
-        let delta2 = self.delta_distance2(i, j);
         let r: f32 = rand::thread_rng().gen();
         if delta < 0.0 || r < (-delta / temp).exp() {
             self.swap(i, j);

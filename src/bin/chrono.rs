@@ -21,6 +21,5 @@ fn salesman_duration(num_points: usize) -> chrono::Duration {
     let rand_points = salesman::example::rand_points_from_chacha(num_points);
     salesman::anneal::shortest_path(&rand_points, 1);
     let end_time = Utc::now().time();
-    let diff = end_time - start_time;
-    diff
+    end_time - start_time
 }
