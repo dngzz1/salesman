@@ -9,18 +9,18 @@ fn main() {
 
 fn print_salesman_duration(num_points: usize) {
     println!(
-        "Salesman with {} points: {} ms.",
+        "Salesman with {} points: {} microseconds.",
         num_points,
-        salesman_duration(num_points)
+        salesman_duration(num_points).num_microseconds().unwrap()
     );
 }
 
-fn salesman_duration(num_points: usize) -> i64 {
+fn salesman_duration(num_points: usize) -> chrono::Duration {
     let num_points = num_points;
     let start_time = Utc::now().time();
     let rand_points = salesman::example::rand_points_from_chacha(num_points);
     salesman::anneal::shortest_path(&rand_points, 1);
     let end_time = Utc::now().time();
     let diff = end_time - start_time;
-    diff.num_milliseconds()
+    diff
 }

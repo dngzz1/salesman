@@ -67,10 +67,26 @@ impl Path {
         s
     }
 
+    fn delta_distance2(&self, i: usize, j: usize) -> f32 {
+        let original_order = self.order.clone();
+        let swapped_order;
+        {
+            let mut vec = original_order.clone();
+            vec.swap(i, j);
+            swapped_order = vec;
+        }
+        let original_points = get_path_from_order(&self.points, &original_order);
+        let swapped_points = get_path_from_order(&self.points, &swapped_order);
+        let original_distance = loop_distance(&original_points);
+        let swapped_distance = loop_distance(&swapped_points);
+        swapped_distance - original_distance
+    }
+
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
         let j = self.random_pos();
         let delta = self.delta_distance(i, j);
+        let delta2 = self.delta_distance2(i, j);
         let r: f32 = rand::thread_rng().gen();
         if delta < 0.0 || r < (-delta / temp).exp() {
             self.swap(i, j);
@@ -83,7 +99,7 @@ fn path_order_once(points: &[(f32, f32)]) -> Vec<usize> {
     if points.len() < 2 {
         return path.order;
     }
-    let intensity = 13.0_f32; // costs more computational time
+    let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(path.access(0), path.access(1));
@@ -109,7 +125,7 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize
         let order = path_order_once(points);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
-        loop_distances.push(path_distance(&path));
+        loop_distances.push(loop_distance(&path));
     }
     let argmin = argmin(loop_distances);
     orders[argmin].clone()
@@ -136,7 +152,7 @@ fn argmin(points: Vec<f32>) -> usize {
     index
 }
 
-fn path_distance(points: &[(f32, f32)]) -> f32 {
+fn loop_distance(points: &[(f32, f32)]) -> f32 {
     let mut sum = 0.0;
     for i in 0..points.len() {
         let j = (i + 1) % points.len();
