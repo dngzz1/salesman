@@ -3,13 +3,9 @@ name = "salesman"
 version = "0.1.0"
 edition = "2021"
 
-# [profile.release]
-# lto = true
-# codegen-units = 1
-
-[[bench]]
-name = "bench_simple_loop"
-harness = false
+# [[bench]]
+# name = "bench_simple_loop"
+# harness = false
 
 
 [dependencies]
@@ -18,4 +14,5 @@ rand_chacha = "0.3.1"
 plotters = "0.3.4"
 ordered-float = "3.3.0"
 permutations = "0.1.1"
-bencher = "0.1.5"
+# bencher = "0.1.5"
+chrono = "0.4.22"
