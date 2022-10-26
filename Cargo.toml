@@ -7,8 +7,15 @@ edition = "2021"
 # lto = true
 # codegen-units = 1
 
+[[bench]]
+name = "bench_simple_loop"
+harness = false
+
+
 [dependencies]
 rand = "0.8.4"
+rand_chacha = "0.3.1"
 plotters = "0.3.4"
 ordered-float = "3.3.0"
 permutations = "0.1.1"
+bencher = "0.1.5"
