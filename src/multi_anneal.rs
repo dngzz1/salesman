@@ -7,12 +7,16 @@ struct Path {
     length: usize,
     order: Vec<usize>,
     distances: Vec<f32>,
+    salesmen_capacities: Vec<usize>,
 }
 
 impl Path {
-    fn new(points: &[(f32, f32)]) -> Self {
+    fn new(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Self {
         let points = points.to_owned();
         let length = points.len();
+        assert!(length == salesmen_capacities.iter().sum()); // check valid capacities
+
+        let salesmen_capacities = salesmen_capacities.to_vec();
         let order = (0..length).collect::<Vec<usize>>();
         let mut distances = vec![0.0; length * length];
         for i in 0..length {
@@ -25,6 +29,7 @@ impl Path {
             length,
             order,
             distances,
+            salesmen_capacities,
         }
     }
 
@@ -48,26 +53,7 @@ impl Path {
         self.order.swap(i, j);
     }
 
-    fn delta_distance(&self, i: usize, j: usize) -> f32 {
-        let jm1 = self.index(j - 1);
-        let jp1 = self.index(j + 1);
-        let im1 = self.index(i - 1);
-        let ip1 = self.index(i + 1);
-        let mut s = self.distance(jm1, i)
-            + self.distance(i, jp1)
-            + self.distance(im1, j)
-            + self.distance(j, ip1)
-            - self.distance(im1, i)
-            - self.distance(i, ip1)
-            - self.distance(jm1, j)
-            - self.distance(j, jp1);
-        if jm1 == i || jp1 == i {
-            s += 2.0 * self.distance(i, j);
-        }
-        s
-    }
-
-    fn delta_distance2(&self, i: usize, j: usize) -> f32 {
+    fn delta_distance_slow(&self, i: usize, j: usize) -> f32 {
         let original_order = self.order.clone();
         let swapped_order;
         {
@@ -77,10 +63,18 @@ impl Path {
         }
         let mut original_distance = 0.0;
         let mut swapped_distance = 0.0;
-        for i in 0..self.length {
-            let j = (i + 1) % self.length;
-            original_distance += self.distance(original_order[i], original_order[j]);
-            swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
+
+        for i in 0..self.salesmen_capacities.len() {
+            let range_start = self.salesmen_capacities[0..i].iter().sum::<usize>();
+            let range_end = self.salesmen_capacities[0..(i + 1)].iter().sum::<usize>() - 1;
+            let range = range_start..range_end;
+            for j in range {
+                original_distance += self.distance(original_order[j], original_order[j + 1]);
+                swapped_distance += self.distance(swapped_order[j], swapped_order[j + 1]);
+            }
+            original_distance +=
+                self.distance(original_order[range_end], original_order[range_start]);
+            swapped_distance += self.distance(swapped_order[range_end], swapped_order[range_start]);
         }
         swapped_distance - original_distance
     }
@@ -88,8 +82,7 @@ impl Path {
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
         let j = self.random_pos();
-        let delta = self.delta_distance(i, j);
-        let delta2 = self.delta_distance2(i, j);
+        let delta = self.delta_distance_slow(i, j);
         let r: f32 = rand::thread_rng().gen();
         if delta < 0.0 || r < (-delta / temp).exp() {
             self.swap(i, j);
@@ -97,12 +90,12 @@ impl Path {
     }
 }
 
-fn path_order_once(points: &[(f32, f32)]) -> Vec<usize> {
-    let mut path = Path::new(points);
+fn path_order_once(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Vec<usize> {
+    let mut path = Path::new(points, salesmen_capacities);
     if points.len() < 2 {
         return path.order;
     }
-    let intensity = 10.0_f32; // costs more computational time
+    let intensity = 13.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(path.access(0), path.access(1));
@@ -121,11 +114,15 @@ fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)
     result
 }
 
-pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize> {
+pub fn shortest_path_order(
+    points: &[(f32, f32)],
+    salesmen_capacities: &[usize],
+    num_times: usize,
+) -> Vec<usize> {
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
-        let order = path_order_once(points);
+        let order = path_order_once(points, salesmen_capacities);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
         loop_distances.push(loop_distance(&path));
@@ -134,8 +131,12 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize
     orders[argmin].clone()
 }
 
-pub fn shortest_path(points: &[(f32, f32)], num_times: usize) -> Vec<(f32, f32)> {
-    let order = shortest_path_order(points, num_times);
+pub fn shortest_path(
+    points: &[(f32, f32)],
+    salesmen_capacities: &[usize],
+    num_times: usize,
+) -> Vec<(f32, f32)> {
+    let order = shortest_path_order(points, salesmen_capacities, num_times);
     get_path_from_order(points, &order)
 }
 
@@ -169,6 +170,3 @@ fn distance(p: (f32, f32), q: (f32, f32)) -> f32 {
     let dy = p.1 - q.1;
     (dx * dx + dy * dy).sqrt()
 }
-
-#[cfg(test)]
-mod test_anneal;
