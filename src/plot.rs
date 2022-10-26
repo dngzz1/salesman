@@ -61,6 +61,7 @@ pub fn plot_clusters(_points: &[(f32, f32)], _salesmen_capacities: &[usize], fil
         let range = range_start..range_end;
         let filtered_points = sorted_points[range].iter().map(|&x| x).collect::<Vec<_>>();
         let my_color = my_colors[i % my_colors.len()];
+
         // run salesman algorithm on filtered_points.
         let mut shortest_path = anneal::shortest_path(&filtered_points, 1);
         shortest_path.push(shortest_path[0]);
