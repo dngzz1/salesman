@@ -142,22 +142,6 @@ fn path_order_once(
     result
 }
 
-/// Reorders the points.
-/// ```
-/// use salesman::anneal::get_path_from_order;
-/// let points = vec![(0.,0.), (10.,0.), (30.,0.), (50.,0.)];
-/// let order = vec![1, 3, 0, 2];
-/// let reordered_points = get_path_from_order(&points, &order);
-/// assert_eq!(reordered_points, vec![(10.,0.), (50.,0.), (0.,0.), (30.,0.)]);
-/// ```
-pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
-    let mut result = Vec::new();
-    for i in 0..order.len() {
-        result.push(points[order[i]]);
-    }
-    result
-}
-
 /// Returns the order for the salesman to traverse based on simulated annealing.
 /// If is_loop is set to false, then the function will additionally permute order so that the longest segment has endpoints at the opposite end of vector slice.
 /// If seed is set to None, thread_rng() will be used.
@@ -209,4 +193,20 @@ pub fn shortest_path(
 ) -> Vec<(f32, f32)> {
     let order = shortest_path_order(points, num_times, is_loop, seed);
     get_path_from_order(points, &order)
+}
+
+/// Reorders the points.
+/// ```
+/// use salesman::anneal::get_path_from_order;
+/// let points = vec![(0.,0.), (10.,0.), (30.,0.), (50.,0.)];
+/// let order = vec![1, 3, 0, 2];
+/// let reordered_points = get_path_from_order(&points, &order);
+/// assert_eq!(reordered_points, vec![(10.,0.), (50.,0.), (0.,0.), (30.,0.)]);
+/// ```
+pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
+    let mut result = Vec::new();
+    for i in 0..order.len() {
+        result.push(points[order[i]]);
+    }
+    result
 }
