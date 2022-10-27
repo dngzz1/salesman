@@ -50,7 +50,7 @@ $$\mathcal{M}(C_1, C_2,...,C_k) = \sum_{i=1}^k \sum_{\mathbf{x}_j \in C_i} \lVer
 
 where 
 $$
-\mathbf{z}_i = \frac{1}{2}
+\mathbf{z}
 $$
 <!-- $$
 {\mathbf{z}}_i = \frac{1}{|C_i|} 
