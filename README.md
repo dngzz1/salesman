@@ -13,6 +13,12 @@ $$\mathcal{M}(C_1, C_2,...,C_k) = \sum_{i=1}^k \sum_{\mathbf{x}_j \in C_i} \lVer
 where $$\mathbf{z}_i = \frac{1}{|C_i|} \sum_{\mathbf{x} \in C_i} \mathbf{x}$$ 
 is the barycenter of cluster $i$. See this [article](http://library.isical.ac.in:8080/jspui/bitstream/10263/5650/1/Clustering%20using%20simulated%20annealing%20with%20probabilistic%20redistribution-IJOPRAAI-15-2-2001-%20p%20269-285.pdf).
 
-![clusters](./images/closed_strings.png "Clusters")
+![clusters](./images/clusters.png "Clusters")
 
 We then run the salesman algorithm on each cluster.
+![closed_strings](./images/closed_strings.png "Closed strings")
+
+If we don't require the salesmen to return to the original position, a good enough solution would be to remove the longest path 
+![open_strings](./images/open_strings.png "Open strings")
+
+Note: this is unfinished. I still need to configure the seed so that the randomness is deterministic.
