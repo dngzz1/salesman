@@ -97,7 +97,7 @@ impl Path {
     }
 }
 
-fn path_order_once(points: &[(f32, f32)], untangle: bool) -> Vec<usize> {
+fn path_order_once(points: &[(f32, f32)], untangle: bool, is_loop: bool) -> Vec<usize> {
     let mut path = Path::new(points);
     if points.len() < 2 {
         return path.order;
@@ -110,13 +110,16 @@ fn path_order_once(points: &[(f32, f32)], untangle: bool) -> Vec<usize> {
         path.change(temperature);
         temperature *= temp_coeff;
     }
-    let result;
+    let mut result;
     if untangle {
         result = untangle::get_untangled_order(points, &path.order);
     } else {
         result = path.order;
     }
-    crate::untangle::disconnect_longest_string(&points, &result)
+    if !is_loop {
+        result = crate::untangle::disconnect_longest_string(&points, &result)
+    }
+    result
 }
 
 pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
@@ -127,11 +130,11 @@ pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, 
     result
 }
 
-pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize> {
+pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize, is_loop: bool) -> Vec<usize> {
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
-        let order = path_order_once(points, true);
+        let order = path_order_once(points, true, is_loop);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
         loop_distances.push(crate::utils::loop_distance(&path));
@@ -140,7 +143,7 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize
     orders[argmin].clone()
 }
 
-pub fn shortest_path(points: &[(f32, f32)], num_times: usize) -> Vec<(f32, f32)> {
-    let order = shortest_path_order(points, num_times);
+pub fn shortest_path(points: &[(f32, f32)], num_times: usize, is_loop: bool) -> Vec<(f32, f32)> {
+    let order = shortest_path_order(points, num_times, is_loop);
     get_path_from_order(points, &order)
 }
