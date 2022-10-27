@@ -27,13 +27,22 @@ pub fn rand_points(num_points: usize) -> Vec<(f32, f32)> {
     points
 }
 
-pub fn rand_points_from_chacha(num_points: usize, seed: u64) -> Vec<(f32, f32)> {
+pub fn rand_points_from_chacha(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
     let mut points = Vec::new();
-    let mut rng = ChaCha8Rng::seed_from_u64(seed);
-    for _ in 0..num_points {
-        let x = rng.gen_range(-1.0..1.0);
-        let y = rng.gen_range(-1.0..1.0);
-        points.push((x, y));
+    if let Some(i) = seed {
+        let mut rng = ChaCha8Rng::seed_from_u64(i);
+        for _ in 0..num_points {
+            let x = rng.gen_range(-1.0..1.0);
+            let y = rng.gen_range(-1.0..1.0);
+            points.push((x, y));
+        }
+    } else {
+        let mut rng = thread_rng();
+        for _ in 0..num_points {
+            let x = rng.gen_range(-1.0..1.0);
+            let y = rng.gen_range(-1.0..1.0);
+            points.push((x, y));
+        }
     }
     points
 }

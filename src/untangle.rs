@@ -42,11 +42,11 @@ pub fn disconnect_longest_string(points: &[(f32, f32)], order: &[usize]) -> Vec<
         }
     }
     let mut new_order = Vec::new();
-    for i in (index_of_longest_string + 1)..n {
-        new_order.push(order[i]);
+    for &item in order.iter().take(n).skip(index_of_longest_string + 1) {
+        new_order.push(item);
     }
-    for i in 0..(index_of_longest_string + 1) {
-        new_order.push(order[i]);
+    for &item in order.iter().take(index_of_longest_string + 1) {
+        new_order.push(item);
     }
     new_order
 }

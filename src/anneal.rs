@@ -9,7 +9,7 @@ struct Path {
     length: usize,
     order: Vec<usize>,
     distances: Vec<f32>,
-    seed: Option<u64>,
+    rng: Option<ChaCha8Rng>,
 }
 
 impl Path {
@@ -23,18 +23,19 @@ impl Path {
                 distances[i * length + j] = crate::utils::distance(points[i], points[j]);
             }
         }
+        let rng = seed.map(ChaCha8Rng::seed_from_u64);
         Self {
             points,
             length,
             order,
             distances,
-            seed,
+            rng,
         }
     }
 
-    fn random_pos(&self) -> usize {
-        match self.seed {
-            Some(seed) => ChaCha8Rng::seed_from_u64(seed).gen_range(1..(self.points.len())),
+    fn random_pos(&mut self) -> usize {
+        match &mut self.rng {
+            Some(chacha) => chacha.gen_range(1..(self.points.len())),
             None => rand::thread_rng().gen_range(1..(self.points.len())),
         }
     }
@@ -96,8 +97,8 @@ impl Path {
         let i = self.random_pos();
         let j = self.random_pos();
         let delta = self.delta_distance(i, j);
-        let r: f32 = match self.seed {
-            Some(seed) => ChaCha8Rng::seed_from_u64(seed).gen(),
+        let r: f32 = match &mut self.rng {
+            Some(chacha) => chacha.gen(),
             None => rand::thread_rng().gen(),
         };
         if delta < 0.0 || r < (-delta / temp).exp() {
@@ -131,7 +132,7 @@ fn path_order_once(
         result = path.order;
     }
     if !is_loop {
-        result = crate::untangle::disconnect_longest_string(&points, &result)
+        result = crate::untangle::disconnect_longest_string(points, &result)
     }
     result
 }

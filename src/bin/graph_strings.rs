@@ -2,18 +2,35 @@ use plotters::prelude::*;
 
 fn main() {
     let num_points = 60;
-    let seed = 42;
+    let seed = Some(42);
+    let intensity = 10.0;
     let points = salesman::example::rand_points_from_chacha(num_points, seed);
     let salesmen_capacities = [num_points / 6; 6];
-    let order = salesman::string::get_string_order(&points, &salesmen_capacities, Some(seed));
+    let order = salesman::string::get_string_order(&points, &salesmen_capacities, intensity, seed);
     plot(
         &points,
         &order,
         &salesmen_capacities,
         true,
+        false,
+        "clusters",
+    );
+    plot(
+        &points,
+        &order,
+        &salesmen_capacities,
+        true,
+        true,
         "closed_strings",
     );
-    plot(&points, &order, &salesmen_capacities, false, "open_strings");
+    plot(
+        &points,
+        &order,
+        &salesmen_capacities,
+        false,
+        true,
+        "open_strings",
+    );
 }
 
 fn plot(
@@ -21,6 +38,7 @@ fn plot(
     _order: &[usize],
     _salesmen_capacities: &[usize],
     is_loop: bool,
+    display_string: bool,
     filename: &str,
 ) {
     let points = _points.to_vec();
@@ -57,12 +75,13 @@ fn plot(
                 .map(|point| TriangleMarker::new(*point, 5, my_color)),
         )
         .unwrap();
-
-        ctx.draw_series(
-            vec![1]
-                .iter()
-                .map(|_| PathElement::new(filtered_points.clone(), my_color)),
-        )
-        .unwrap();
+        if display_string {
+            ctx.draw_series(
+                vec![1]
+                    .iter()
+                    .map(|_| PathElement::new(filtered_points.clone(), my_color)),
+            )
+            .unwrap();
+        }
     }
 }

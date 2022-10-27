@@ -1,4 +1,5 @@
-use rand::Rng;
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Clone)]
 struct Cluster {
@@ -6,26 +7,32 @@ struct Cluster {
     length: usize,
     order: Vec<usize>,
     salesmen_capacities: Vec<usize>,
+    rng: Option<ChaCha8Rng>,
 }
 
 impl Cluster {
-    fn new(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Self {
+    fn new(points: &[(f32, f32)], salesmen_capacities: &[usize], seed: Option<u64>) -> Self {
         let points = points.to_owned();
         let length = points.len();
         assert!(length == salesmen_capacities.iter().sum()); // check valid capacities
 
         let salesmen_capacities = salesmen_capacities.to_vec();
         let order = (0..length).collect::<Vec<usize>>();
+        let rng = seed.map(ChaCha8Rng::seed_from_u64);
         Self {
             points,
             length,
             order,
             salesmen_capacities,
+            rng,
         }
     }
 
-    fn random_pos(&self) -> usize {
-        rand::thread_rng().gen_range(0..(self.points.len()))
+    fn random_pos(&mut self) -> usize {
+        match &mut self.rng {
+            Some(chacha) => chacha.gen_range(1..(self.points.len())),
+            None => rand::thread_rng().gen_range(1..(self.points.len())),
+        }
     }
 
     fn index(&self, i: usize) -> usize {
@@ -59,7 +66,10 @@ impl Cluster {
         let i = self.random_pos();
         let j = self.random_pos();
         let delta = self.delta_distance_slow(i, j);
-        let r: f32 = rand::thread_rng().gen();
+        let r: f32 = match &mut self.rng {
+            Some(chacha) => chacha.gen(),
+            None => rand::thread_rng().gen(),
+        };
         if delta < 0.0 || r < (-delta / temp).exp() {
             self.swap(i, j);
         }
@@ -70,8 +80,9 @@ pub fn cluster_order(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
     intensity: f32,
+    seed: Option<u64>,
 ) -> Vec<usize> {
-    let mut cluster = Cluster::new(points, salesmen_capacities);
+    let mut cluster = Cluster::new(points, salesmen_capacities, seed);
     if points.len() < 2 {
         return cluster.order;
     }
@@ -97,8 +108,9 @@ pub fn best_cluster(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
     intensity: f32,
+    seed: Option<u64>,
 ) -> Vec<(f32, f32)> {
-    let order = cluster_order(points, salesmen_capacities, intensity);
+    let order = cluster_order(points, salesmen_capacities, intensity, seed);
     get_cluster_from_order(points, &order)
 }
 
