@@ -1,3 +1,4 @@
+use crate::untangle;
 use ordered_float::NotNan;
 use rand::Rng;
 
@@ -96,12 +97,12 @@ impl Path {
     }
 }
 
-fn path_order_once(points: &[(f32, f32)]) -> Vec<usize> {
+fn path_order_once(points: &[(f32, f32)], untangle: bool) -> Vec<usize> {
     let mut path = Path::new(points);
     if points.len() < 2 {
         return path.order;
     }
-    let intensity = 12.0_f32; // costs more computational time
+    let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(path.access(0), path.access(1));
@@ -109,10 +110,13 @@ fn path_order_once(points: &[(f32, f32)]) -> Vec<usize> {
         path.change(temperature);
         temperature *= temp_coeff;
     }
+    if untangle {
+        return untangle::get_untangled_order(points, &path.order);
+    }
     path.order
 }
 
-fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
+pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
     let mut result = Vec::new();
     for i in 0..order.len() {
         result.push(points[order[i]]);
@@ -124,7 +128,7 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
-        let order = path_order_once(points);
+        let order = path_order_once(points, true);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
         loop_distances.push(loop_distance(&path));

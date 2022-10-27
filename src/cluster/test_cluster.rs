@@ -52,12 +52,4 @@ fn test_get_salesman_index() {
     assert_eq!(get_salesman_index(15, &salesmen_capacities), 2);
     assert_eq!(get_salesman_index(16, &salesmen_capacities), 2);
     assert_eq!(get_salesman_index(19, &salesmen_capacities), 2);
-    assert_eq!(get_salesman_index(20, &salesmen_capacities), 3);
-    assert_eq!(get_salesman_index(24, &salesmen_capacities), 3);
-}
-#[test]
-#[should_panic]
-fn panic_get_salesman_index() {
-    let salesmen_capacities = vec![10, 5, 5];
-    get_salesman_index(25, &salesmen_capacities);
 }
