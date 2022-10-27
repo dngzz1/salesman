@@ -32,7 +32,8 @@ fn print_salesman_duration(num_points: usize) {
 fn salesman_duration(num_points: usize) -> chrono::Duration {
     let num_points = num_points;
     let start_time = Utc::now().time();
-    let rand_points = salesman::example::rand_points_from_chacha(num_points);
+    let seed = 42;
+    let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
     salesman::anneal::shortest_path(&rand_points, 1);
     let end_time = Utc::now().time();
     end_time - start_time
@@ -41,7 +42,8 @@ fn salesman_duration(num_points: usize) -> chrono::Duration {
 fn cluster_duration(num_points: usize, salesmen_capacities: &[usize]) -> chrono::Duration {
     let num_points = num_points;
     let start_time = Utc::now().time();
-    let rand_points = salesman::example::rand_points_from_chacha(num_points);
+    let seed = 42;
+    let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
     salesman::cluster::cluster_order(&rand_points, salesmen_capacities);
     let end_time = Utc::now().time();
     end_time - start_time

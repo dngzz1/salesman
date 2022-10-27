@@ -1,5 +1,5 @@
 use crate::untangle;
-use ordered_float::NotNan;
+
 use rand::Rng;
 
 #[derive(Debug, Clone)]
@@ -18,7 +18,7 @@ impl Path {
         let mut distances = vec![0.0; length * length];
         for i in 0..length {
             for j in 0..length {
-                distances[i * length + j] = distance(points[i], points[j]);
+                distances[i * length + j] = crate::utils::distance(points[i], points[j]);
             }
         }
         Self {
@@ -105,15 +105,18 @@ fn path_order_once(points: &[(f32, f32)], untangle: bool) -> Vec<usize> {
     let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
-    let mut temperature = 100.0 * distance(path.access(0), path.access(1));
+    let mut temperature = 100.0 * crate::utils::distance(path.access(0), path.access(1));
     while temperature > 1e-6 {
         path.change(temperature);
         temperature *= temp_coeff;
     }
+    let result;
     if untangle {
-        return untangle::get_untangled_order(points, &path.order);
+        result = untangle::get_untangled_order(points, &path.order);
+    } else {
+        result = path.order;
     }
-    path.order
+    crate::untangle::disconnect_longest_string(&points, &result)
 }
 
 pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
@@ -131,9 +134,9 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize) -> Vec<usize
         let order = path_order_once(points, true);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
-        loop_distances.push(loop_distance(&path));
+        loop_distances.push(crate::utils::loop_distance(&path));
     }
-    let argmin = argmin(loop_distances);
+    let argmin = crate::utils::argmin(loop_distances);
     orders[argmin].clone()
 }
 
@@ -141,37 +144,3 @@ pub fn shortest_path(points: &[(f32, f32)], num_times: usize) -> Vec<(f32, f32)>
     let order = shortest_path_order(points, num_times);
     get_path_from_order(points, &order)
 }
-
-fn argmin(points: Vec<f32>) -> usize {
-    let non_nan_floats: Vec<_> = points
-        .iter()
-        .cloned()
-        .map(NotNan::new) // Attempt to convert each f32 to a NotNan
-        .filter_map(Result::ok) // Unwrap the `NotNan`s and filter out the `NaN` values
-        .collect();
-
-    let min = non_nan_floats.iter().min().unwrap();
-    let index = non_nan_floats
-        .iter()
-        .position(|element| element == min)
-        .unwrap();
-    index
-}
-
-fn loop_distance(points: &[(f32, f32)]) -> f32 {
-    let mut sum = 0.0;
-    for i in 0..points.len() {
-        let j = (i + 1) % points.len();
-        sum += distance(points[i], points[j]);
-    }
-    sum
-}
-
-fn distance(p: (f32, f32), q: (f32, f32)) -> f32 {
-    let dx = p.0 - q.0;
-    let dy = p.1 - q.1;
-    (dx * dx + dy * dy).sqrt()
-}
-
-#[cfg(test)]
-mod test_anneal;

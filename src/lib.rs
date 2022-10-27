@@ -5,3 +5,4 @@ pub mod example;
 pub mod intersection;
 pub mod plot;
 pub mod untangle;
+mod utils;

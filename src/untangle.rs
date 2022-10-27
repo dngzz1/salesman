@@ -28,5 +28,28 @@ pub fn get_untangled_order(points: &[(f32, f32)], order: &[usize]) -> Vec<usize>
     }
 }
 
+pub fn disconnect_longest_string(points: &[(f32, f32)], order: &[usize]) -> Vec<usize> {
+    let mut index_of_longest_string = 0;
+    let mut length_of_longest_string = 0.;
+    let n = points.len();
+    for i in 0..n {
+        let p = points[order[i]];
+        let q = points[order[(i + 1) % n]];
+        let distance = crate::utils::distance(p, q);
+        if distance > length_of_longest_string {
+            index_of_longest_string = i;
+            length_of_longest_string = distance;
+        }
+    }
+    let mut new_order = Vec::new();
+    for i in (index_of_longest_string + 1)..n {
+        new_order.push(order[i]);
+    }
+    for i in 0..(index_of_longest_string + 1) {
+        new_order.push(order[i]);
+    }
+    new_order
+}
+
 #[cfg(test)]
 mod test_untangle;
