@@ -1,6 +1,7 @@
 use crate::untangle;
 
-use rand::Rng;
+use rand::prelude::*;
+use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Clone)]
 struct Path {
@@ -8,10 +9,11 @@ struct Path {
     length: usize,
     order: Vec<usize>,
     distances: Vec<f32>,
+    seed: Option<u64>,
 }
 
 impl Path {
-    fn new(points: &[(f32, f32)]) -> Self {
+    fn new(points: &[(f32, f32)], seed: Option<u64>) -> Self {
         let points = points.to_owned();
         let length = points.len();
         let order = (0..length).collect::<Vec<usize>>();
@@ -26,11 +28,15 @@ impl Path {
             length,
             order,
             distances,
+            seed,
         }
     }
 
     fn random_pos(&self) -> usize {
-        rand::thread_rng().gen_range(1..(self.points.len()))
+        match self.seed {
+            Some(seed) => ChaCha8Rng::seed_from_u64(seed).gen_range(1..(self.points.len())),
+            None => rand::thread_rng().gen_range(1..(self.points.len())),
+        }
     }
 
     fn distance(&self, i: usize, j: usize) -> f32 {
@@ -90,15 +96,23 @@ impl Path {
         let i = self.random_pos();
         let j = self.random_pos();
         let delta = self.delta_distance(i, j);
-        let r: f32 = rand::thread_rng().gen();
+        let r: f32 = match self.seed {
+            Some(seed) => ChaCha8Rng::seed_from_u64(seed).gen(),
+            None => rand::thread_rng().gen(),
+        };
         if delta < 0.0 || r < (-delta / temp).exp() {
             self.swap(i, j);
         }
     }
 }
 
-fn path_order_once(points: &[(f32, f32)], untangle: bool, is_loop: bool) -> Vec<usize> {
-    let mut path = Path::new(points);
+fn path_order_once(
+    points: &[(f32, f32)],
+    untangle: bool,
+    is_loop: bool,
+    seed: Option<u64>,
+) -> Vec<usize> {
+    let mut path = Path::new(points, seed);
     if points.len() < 2 {
         return path.order;
     }
@@ -130,11 +144,16 @@ pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, 
     result
 }
 
-pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize, is_loop: bool) -> Vec<usize> {
+pub fn shortest_path_order(
+    points: &[(f32, f32)],
+    num_times: usize,
+    is_loop: bool,
+    seed: Option<u64>,
+) -> Vec<usize> {
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
-        let order = path_order_once(points, true, is_loop);
+        let order = path_order_once(points, true, is_loop, seed);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
         loop_distances.push(crate::utils::loop_distance(&path));
@@ -143,7 +162,12 @@ pub fn shortest_path_order(points: &[(f32, f32)], num_times: usize, is_loop: boo
     orders[argmin].clone()
 }
 
-pub fn shortest_path(points: &[(f32, f32)], num_times: usize, is_loop: bool) -> Vec<(f32, f32)> {
-    let order = shortest_path_order(points, num_times, is_loop);
+pub fn shortest_path(
+    points: &[(f32, f32)],
+    num_times: usize,
+    is_loop: bool,
+    seed: Option<u64>,
+) -> Vec<(f32, f32)> {
+    let order = shortest_path_order(points, num_times, is_loop, seed);
     get_path_from_order(points, &order)
 }

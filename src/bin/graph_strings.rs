@@ -5,7 +5,7 @@ fn main() {
     let seed = 42;
     let points = salesman::example::rand_points_from_chacha(num_points, seed);
     let salesmen_capacities = [num_points / 6; 6];
-    let order = salesman::string::get_string_order(&points, &salesmen_capacities);
+    let order = salesman::string::get_string_order(&points, &salesmen_capacities, Some(seed));
     plot(
         &points,
         &order,

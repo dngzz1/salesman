@@ -66,12 +66,15 @@ impl Cluster {
     }
 }
 
-pub fn cluster_order(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Vec<usize> {
+pub fn cluster_order(
+    points: &[(f32, f32)],
+    salesmen_capacities: &[usize],
+    intensity: f32,
+) -> Vec<usize> {
     let mut cluster = Cluster::new(points, salesmen_capacities);
     if points.len() < 2 {
         return cluster.order;
     }
-    let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(cluster.access(0), cluster.access(1));
@@ -90,8 +93,12 @@ fn get_cluster_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f
     result
 }
 
-pub fn best_cluster(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Vec<(f32, f32)> {
-    let order = cluster_order(points, salesmen_capacities);
+pub fn best_cluster(
+    points: &[(f32, f32)],
+    salesmen_capacities: &[usize],
+    intensity: f32,
+) -> Vec<(f32, f32)> {
+    let order = cluster_order(points, salesmen_capacities, intensity);
     get_cluster_from_order(points, &order)
 }
 

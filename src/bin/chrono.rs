@@ -2,59 +2,66 @@
 use chrono::prelude::*;
 
 fn main() {
-    time_cluster_duration();
+    time_cluster_duration_varying_intensity();
 }
 
-fn time_cluster_duration() {
+fn time_cluster_duration_varying_num_points() {
     let arr = [20, 40, 80, 160, 320, 640];
+    let intensity = 10.0;
     for num_points in arr {
-        // let salesmen_capacities = [num_points / 2, num_points / 2];
+        let rand_points = salesman::example::rand_points_from_chacha(num_points, 42);
         let salesmen_capacities = [num_points / 4; 4];
-        print_cluster_duration(num_points, &salesmen_capacities);
+        let f = || {
+            salesman::cluster::best_cluster(&rand_points, &salesmen_capacities, intensity);
+        };
+        println!(
+            "Clustering with {} points: {} milliseconds.",
+            num_points,
+            get_duration(f).num_milliseconds()
+        );
+    }
+}
+
+fn time_cluster_duration_varying_intensity() {
+    let arr = [10., 10.5, 11., 11.5, 12.];
+    let num_points = 40;
+    let rand_points = salesman::example::rand_points_from_chacha(num_points, 42);
+    for intensity in arr {
+        let salesmen_capacities = [num_points / 4; 4];
+        let f = || {
+            salesman::cluster::best_cluster(&rand_points, &salesmen_capacities, intensity);
+        };
+        println!(
+            "Clustering with intensity {}: {} milliseconds.",
+            intensity,
+            get_duration(f).num_milliseconds()
+        );
     }
 }
 
 fn time_salesman_duration() {
-    let arr = [10, 20, 40, 80, 160, 320, 640, 1280];
+    println!("Timing Traveling Salesman by Simulated Annealing...");
+    let arr = [10, 20, 40, 80, 160, 300, 320];
+    let seed = Some(42);
     for num_points in arr {
-        print_salesman_duration(num_points);
+        let rand_points = salesman::example::rand_points_from_chacha(num_points, 42);
+        let f = || {
+            salesman::anneal::shortest_path(&rand_points, 1, true, seed);
+        };
+        println!(
+            "Salesman with {} points: {} milliseconds.",
+            num_points,
+            get_duration(f).num_milliseconds()
+        );
     }
 }
 
-fn print_salesman_duration(num_points: usize) {
-    println!(
-        "Salesman with {} points: {} microseconds.",
-        num_points,
-        salesman_duration(num_points).num_microseconds().unwrap()
-    );
-}
-
-fn salesman_duration(num_points: usize) -> chrono::Duration {
-    let num_points = num_points;
+fn get_duration<F>(f: F) -> chrono::Duration
+where
+    F: FnOnce(),
+{
     let start_time = Utc::now().time();
-    let seed = 42;
-    let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
-    salesman::anneal::shortest_path(&rand_points, 1, true);
+    f();
     let end_time = Utc::now().time();
     end_time - start_time
-}
-
-fn cluster_duration(num_points: usize, salesmen_capacities: &[usize]) -> chrono::Duration {
-    let num_points = num_points;
-    let start_time = Utc::now().time();
-    let seed = 42;
-    let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
-    salesman::cluster::cluster_order(&rand_points, salesmen_capacities);
-    let end_time = Utc::now().time();
-    end_time - start_time
-}
-
-fn print_cluster_duration(num_points: usize, salesmen_capacities: &[usize]) {
-    println!(
-        "Salesman with {} points: {} microseconds.",
-        num_points,
-        cluster_duration(num_points, salesmen_capacities)
-            .num_microseconds()
-            .unwrap()
-    );
 }

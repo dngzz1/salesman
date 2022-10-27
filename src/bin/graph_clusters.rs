@@ -4,9 +4,10 @@ use salesman::*;
 fn main() {
     let num_points = 60;
     let seed = 42;
+    let intensity = 10.0;
     let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
     let salesmen_capacities = [num_points / 6; 6];
-    let points = salesman::cluster::best_cluster(&rand_points, &salesmen_capacities);
+    let points = salesman::cluster::best_cluster(&rand_points, &salesmen_capacities, intensity);
     plot_clusters(&points, &salesmen_capacities, "clusters");
 }
 
@@ -14,7 +15,8 @@ fn plot_clusters(_points: &[(f32, f32)], _salesmen_capacities: &[usize], filenam
     // generate loop from points.
     let points = _points.to_vec();
     let salesmen_capacities = _salesmen_capacities.to_vec();
-    let sorted_points = cluster::best_cluster(&points, &salesmen_capacities);
+    let intensity = 10.0;
+    let sorted_points = cluster::best_cluster(&points, &salesmen_capacities, intensity);
 
     // Plot the result and save to folder images/<filename>
     let my_colors = [&BLACK, &RED, &BLUE, &GREEN, &MAGENTA, &CYAN];

@@ -2,7 +2,7 @@ use plotters::prelude::*;
 fn main() {
     let seed = 42;
     let rand_points = salesman::example::rand_points_from_chacha(20, seed);
-    let points = salesman::anneal::shortest_path(&rand_points, 2, true);
+    let points = salesman::anneal::shortest_path(&rand_points, 2, true, Some(seed));
     plot_hamiltonian_loop(&points);
 }
 
