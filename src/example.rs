@@ -1,33 +1,10 @@
 use super::block::*;
 use rand::prelude::*;
-use rand::seq::SliceRandom;
 use rand_chacha::ChaCha8Rng;
 
-pub fn get_circle(num_points: usize) -> Vec<(f32, f32)> {
-    let mut points = Vec::new();
-    let pi = std::f32::consts::PI;
-    for i in 0..num_points {
-        let angle = 2.0 * pi * (i as f32) / num_points as f32;
-        let x = angle.cos();
-        let y = angle.sin();
-        let p = (x, y);
-        points.push(p);
-    }
-    points.shuffle(&mut thread_rng());
-    points
-}
-
-pub fn rand_points(num_points: usize) -> Vec<(f32, f32)> {
-    let mut points = Vec::new();
-    for _ in 0..num_points {
-        let x = rand::thread_rng().gen_range(-1.0..1.0);
-        let y = rand::thread_rng().gen_range(-1.0..1.0);
-        points.push((x, y));
-    }
-    points
-}
-
-pub fn rand_points_from_chacha(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
+/// Creates a vector of random points between -1.0 and 1.0.
+/// If the seed is none, then thread_rng will be used.
+pub fn rand_points(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
     let mut points = Vec::new();
     if let Some(i) = seed {
         let mut rng = ChaCha8Rng::seed_from_u64(i);

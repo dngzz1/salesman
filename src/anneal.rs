@@ -1,3 +1,7 @@
+//! Performs simulated annealing to solve the Traveling Salesman Problem.
+//!
+//! A seed can be specified to control randomness.
+//!
 use crate::untangle;
 
 use rand::prelude::*;
@@ -35,8 +39,8 @@ impl Path {
 
     fn random_pos(&mut self) -> usize {
         match &mut self.rng {
-            Some(chacha) => chacha.gen_range(1..(self.points.len())),
-            None => rand::thread_rng().gen_range(1..(self.points.len())),
+            Some(chacha) => chacha.gen_range(0..(self.points.len())),
+            None => rand::thread_rng().gen_range(0..(self.points.len())),
         }
     }
 
@@ -57,9 +61,9 @@ impl Path {
     }
 
     fn delta_distance(&self, i: usize, j: usize) -> f32 {
-        let jm1 = self.index(j - 1);
+        let jm1 = self.index(j + self.length - 1);
         let jp1 = self.index(j + 1);
-        let im1 = self.index(i - 1);
+        let im1 = self.index(i + self.length - 1);
         let ip1 = self.index(i + 1);
         let mut s = self.distance(jm1, i)
             + self.distance(i, jp1)
@@ -75,23 +79,24 @@ impl Path {
         s
     }
 
-    // fn delta_distance2(&self, i: usize, j: usize) -> f32 {
-    //     let original_order = self.order.clone();
-    //     let swapped_order;
-    //     {
-    //         let mut vec = original_order.clone();
-    //         vec.swap(i, j);
-    //         swapped_order = vec;
-    //     }
-    //     let mut original_distance = 0.0;
-    //     let mut swapped_distance = 0.0;
-    //     for i in 0..self.length {
-    //         let j = (i + 1) % self.length;
-    //         original_distance += self.distance(original_order[i], original_order[j]);
-    //         swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
-    //     }
-    //     swapped_distance - original_distance
-    // }
+    #[allow(dead_code)]
+    fn delta_distance_slow(&self, i: usize, j: usize) -> f32 {
+        let original_order = self.order.clone();
+        let swapped_order;
+        {
+            let mut vec = original_order.clone();
+            vec.swap(i, j);
+            swapped_order = vec;
+        }
+        let mut original_distance = 0.0;
+        let mut swapped_distance = 0.0;
+        for i in 0..self.length {
+            let j = (i + 1) % self.length;
+            original_distance += self.distance(original_order[i], original_order[j]);
+            swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
+        }
+        swapped_distance - original_distance
+    }
 
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
@@ -137,6 +142,14 @@ fn path_order_once(
     result
 }
 
+/// Reorders the points.
+/// ```
+/// use salesman::anneal::get_path_from_order;
+/// let points = vec![(0.,0.), (10.,0.), (30.,0.), (50.,0.)];
+/// let order = vec![1, 3, 0, 2];
+/// let reordered_points = get_path_from_order(&points, &order);
+/// assert_eq!(reordered_points, vec![(10.,0.), (50.,0.), (0.,0.), (30.,0.)]);
+/// ```
 pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f32)> {
     let mut result = Vec::new();
     for i in 0..order.len() {
@@ -145,6 +158,19 @@ pub fn get_path_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, 
     result
 }
 
+/// Returns the order for the salesman to traverse based on simulated annealing.
+/// If is_loop is set to false, then the function will additionally permute order so that the longest segment has endpoints at the opposite end of vector slice.
+/// If seed is set to None, thread_rng() will be used.
+/// ```
+/// use salesman::anneal::shortest_path_order;
+/// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
+/// let num_times = 1;
+/// let is_loop = false;
+/// let seed = Some(42);
+/// let order = shortest_path_order(&points, num_times, is_loop, seed);
+/// assert_eq!(order, vec![2, 0, 3, 1]);
+///
+/// ```
 pub fn shortest_path_order(
     points: &[(f32, f32)],
     num_times: usize,
@@ -163,6 +189,18 @@ pub fn shortest_path_order(
     orders[argmin].clone()
 }
 
+/// Returns the path for the salesman to traverse based on simulated annealing. See [shortest_path_order].
+/// # Examples
+/// ```
+/// use salesman::anneal::shortest_path;
+/// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
+/// let num_times = 1;
+/// let is_loop = false;
+/// let seed = Some(42);
+/// let path = shortest_path(&points, num_times, is_loop, seed);
+/// assert_eq!(path, vec![(0.,0.32), (0.1,-0.1), (0.3,0.1), (0.5,0.25)]);
+///
+/// ```
 pub fn shortest_path(
     points: &[(f32, f32)],
     num_times: usize,

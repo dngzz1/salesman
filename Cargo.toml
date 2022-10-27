@@ -3,15 +3,30 @@ name = "salesman"
 version = "0.1.0"
 edition = "2021"
 
-# [[bench]]
-# name = "bench_simple_loop"
-# harness = false
-
-
 [dependencies]
 rand = "0.8.4"
 rand_chacha = "0.3.1"
 plotters = "0.3.4"
 ordered-float = "3.3.0"
 chrono = "0.4.22"
-cargo-tarpaulin = "0.22.0"
+# cargo-tarpaulin = "0.22.0"
+
+[[bin]]
+name = "chrono"
+test = false
+
+[[bin]]
+name = "example_0"
+test = false
+
+[[bin]]
+name = "example_1"
+test = false
+
+[[bin]]
+name = "example_2"
+test = false
+
+[[bin]]
+name = "graph_one_salesman"
+test = false

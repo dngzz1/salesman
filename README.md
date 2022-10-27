@@ -19,17 +19,17 @@ where $$\mathbf{z}_i = \frac{1}{|C_i|} \sum_{\mathbf{x} \in C_i} \mathbf{x}$$
 is the barycenter of cluster $i$. See this [article](http://library.isical.ac.in:8080/jspui/bitstream/10263/5650/1/Clustering%20using%20simulated%20annealing%20with%20probabilistic%20redistribution-IJOPRAAI-15-2-2001-%20p%20269-285.pdf).
 
 <p align="center">
-<img src="images/clusters.png" width="300" height="300">
+<img src="images/example_1/clusters.png" width="300" height="300">
 </p>
 
 We then run the salesman algorithm on each cluster.
 
 <p align="center">
-<img src="images/closed_strings.png" width="300" height="300">
+<img src="images/example_1/closed_strings.png" width="300" height="300">
 </p>
 
 If we don't require the salesmen to return to the original position, a good enough solution would be to remove the longest path 
 
 <p align="center">
-<img src="images/open_strings.png" width="300" height="300">
+<img src="images/example_1/open_strings.png" width="300" height="300">
 </p>

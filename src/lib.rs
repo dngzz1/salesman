@@ -1,9 +1,10 @@
 pub mod anneal;
-pub mod block;
+mod block;
 pub mod cluster;
 pub mod example;
 mod intersection;
 mod permute;
+pub mod plot;
 pub mod string;
-pub mod untangle;
+mod untangle;
 mod utils;

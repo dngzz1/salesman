@@ -1,3 +1,4 @@
+/// First performs a clustering algorithm, then solves Traveling Salesman on each cluster, and finally cuts the longest segment out.
 pub fn get_string_order(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],

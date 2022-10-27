@@ -1,17 +1,9 @@
 use super::*;
-use crate::example::get_circle;
 #[test]
 fn test_barycenter() {
     let points = vec![(1.0, 2.0), (3.0, 0.0)];
     let barycenter = barycenter(&points);
     assert_eq!(barycenter, (2.0, 1.0));
-}
-
-#[test]
-fn test_cluster_metric() {
-    let points = get_circle(10);
-    let cluster_metric = cluster_metric(&points);
-    assert_eq!(cluster_metric, 10.0);
 }
 
 #[test]
