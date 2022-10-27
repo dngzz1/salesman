@@ -37,7 +37,7 @@ fn plot_clusters(_points: &[(f32, f32)], _salesmen_capacities: &[usize], filenam
 
         // run salesman algorithm on filtered_points.
         let path_order = anneal::shortest_path_order(&filtered_points, 2);
-        let mut shortest_path = anneal::get_path_from_order(&filtered_points, &path_order);
+        let shortest_path = anneal::get_path_from_order(&filtered_points, &path_order);
         // shortest_path.push(shortest_path[0]);
         ctx.draw_series(
             filtered_points
