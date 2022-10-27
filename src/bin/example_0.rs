@@ -2,8 +2,15 @@ use salesman::plot::plot_strings;
 fn main() {
     let seed = Some(42);
     let intensity = 10.0;
-    let points = vec![(0.1, -0.1), (0.5, 0.25), (0., 0.32), (0.3, 0.1)];
-    let salesmen_capacities = vec![4];
+    let points = vec![
+        (-0.5, -0.5),
+        (-0.6, -0.5),
+        (-0.6, -0.4),
+        (0.5, 0.5),
+        (0.6, 0.5),
+        (0.6, 0.6),
+    ];
+    let salesmen_capacities = vec![3, 3];
     let order = salesman::string::get_string_order(&points, &salesmen_capacities, intensity, seed);
     plot_strings(
         &points,
