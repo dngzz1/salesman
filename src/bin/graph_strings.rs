@@ -1,24 +1,30 @@
 use plotters::prelude::*;
-use salesman::*;
 
 fn main() {
     let num_points = 60;
     let seed = 42;
-    let rand_points = salesman::example::rand_points_from_chacha(num_points, seed);
+    let points = salesman::example::rand_points_from_chacha(num_points, seed);
     let salesmen_capacities = [num_points / 6; 6];
-    let points = salesman::cluster::best_cluster(&rand_points, &salesmen_capacities);
-    plot(&points, &salesmen_capacities, true, "closed_strings");
-    plot(&points, &salesmen_capacities, false, "open_strings");
+    let order = salesman::string::get_string_order(&points, &salesmen_capacities);
+    plot(
+        &points,
+        &order,
+        &salesmen_capacities,
+        true,
+        "closed_strings",
+    );
+    plot(&points, &order, &salesmen_capacities, false, "open_strings");
 }
 
 fn plot(
-    _sorted_points: &[(f32, f32)],
+    _points: &[(f32, f32)],
+    _order: &[usize],
     _salesmen_capacities: &[usize],
     is_loop: bool,
     filename: &str,
 ) {
-    // generate loop from points.
-    let sorted_points = _sorted_points.to_vec();
+    let points = _points.to_vec();
+    let order = _order.to_vec();
     let salesmen_capacities = _salesmen_capacities.to_vec();
 
     // Plot the result and save to folder images/<filename>
@@ -37,14 +43,13 @@ fn plot(
         let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
         let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();
         let range = range_start..range_end;
-        let filtered_points = sorted_points[range].to_vec();
+        let mut filtered_points = Vec::new();
+        for i in range {
+            filtered_points.push(points[order[i]]);
+        }
         let my_color = my_colors[i % my_colors.len()];
-
-        // run salesman algorithm on filtered_points.
-        let path_order = anneal::shortest_path_order(&filtered_points, 2, is_loop);
-        let mut shortest_path = anneal::get_path_from_order(&filtered_points, &path_order);
         if is_loop {
-            shortest_path.push(shortest_path[0]);
+            filtered_points.push(filtered_points[0]);
         }
         ctx.draw_series(
             filtered_points
@@ -56,7 +61,7 @@ fn plot(
         ctx.draw_series(
             vec![1]
                 .iter()
-                .map(|_| PathElement::new(shortest_path.clone(), my_color)),
+                .map(|_| PathElement::new(filtered_points.clone(), my_color)),
         )
         .unwrap();
     }
