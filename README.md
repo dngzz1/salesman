@@ -50,11 +50,9 @@ $$\mathcal{M}(C_1, C_2,...,C_k) = \sum_{i=1}^k \sum_{\mathbf{x}_j \in C_i} \lVer
 
 where 
 $$
-{\mathbf{z}}_i = \frac{1}{|C_i|} 
+{\mathbf{z}}i = \frac{1}{|C_i|} 
 \sum_{\mathbf{x} \in C_i} \mathbf{x}
 $$
-
-<img src="https://latex.codecogs.com/svg.image?{\mathbf{z}}_i&space;=&space;\frac{1}{|C_i|}&space;\sum_{\mathbf{x}&space;\in&space;C_i}&space;\mathbf{x}">
 
 is the barycenter of cluster $i$. See this [article](http://library.isical.ac.in:8080/jspui/bitstream/10263/5650/1/Clustering%20using%20simulated%20annealing%20with%20probabilistic%20redistribution-IJOPRAAI-15-2-2001-%20p%20269-285.pdf).
 
