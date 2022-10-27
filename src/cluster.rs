@@ -41,15 +41,15 @@ impl Cluster {
     }
 
     fn delta_distance_slow(&self, i: usize, j: usize) -> f32 {
-        let original_order = self.order.clone();
+        let original_order = &self.order;
         let swapped_order;
         {
-            let mut vec = original_order.clone();
+            let mut vec = self.order.clone();
             vec.swap(i, j);
             swapped_order = vec;
         }
         let original_distance =
-            cluster_metric_from_order(&self.points, &self.salesmen_capacities, &original_order);
+            cluster_metric_from_order(&self.points, &self.salesmen_capacities, original_order);
         let swapped_distance =
             cluster_metric_from_order(&self.points, &self.salesmen_capacities, &swapped_order);
         swapped_distance - original_distance
@@ -71,7 +71,7 @@ pub fn cluster_order(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Ve
     if points.len() < 2 {
         return cluster.order;
     }
-    let intensity = 10.0_f32; // costs more computational time
+    let intensity = 8.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(cluster.access(0), cluster.access(1));
