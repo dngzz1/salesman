@@ -101,7 +101,7 @@ fn path_order_once(points: &[(f32, f32)]) -> Vec<usize> {
     if points.len() < 2 {
         return path.order;
     }
-    let intensity = 10.0_f32; // costs more computational time
+    let intensity = 12.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(path.access(0), path.access(1));

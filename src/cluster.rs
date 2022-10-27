@@ -71,7 +71,7 @@ pub fn cluster_order(points: &[(f32, f32)], salesmen_capacities: &[usize]) -> Ve
     if points.len() < 2 {
         return cluster.order;
     }
-    let intensity = 8.0_f32; // costs more computational time
+    let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
     let mut temperature = 100.0 * distance(cluster.access(0), cluster.access(1));
@@ -137,6 +137,15 @@ fn cluster_metric(points: &[(f32, f32)]) -> f32 {
         result += distance(point, b);
     }
     result
+}
+
+#[allow(dead_code)]
+fn get_salesman_index(i: usize, salesmen_capacities: &[usize]) -> usize {
+    let mut index = 0;
+    while salesmen_capacities[0..(index + 1)].iter().sum::<usize>() - 1 < i {
+        index += 1;
+    }
+    index
 }
 
 fn distance(p: (f32, f32), q: (f32, f32)) -> f32 {

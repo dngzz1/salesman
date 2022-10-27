@@ -59,7 +59,7 @@ pub fn plot_clusters(_points: &[(f32, f32)], _salesmen_capacities: &[usize], fil
         let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
         let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();
         let range = range_start..range_end;
-        let filtered_points = sorted_points[range].iter().map(|&x| x).collect::<Vec<_>>();
+        let filtered_points = sorted_points[range].to_vec();
         let my_color = my_colors[i % my_colors.len()];
 
         // run salesman algorithm on filtered_points.
