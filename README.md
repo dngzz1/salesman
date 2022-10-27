@@ -49,7 +49,7 @@ The clustering algorithm can also use simulated annealing. The _cluster metric_ 
 $$\mathcal{M}(C_1, C_2,...,C_k) = \sum_{i=1}^k \sum_{\mathbf{x}_j \in C_i} \lVert \mathbf{x}_j - \mathbf{z}_i \rVert$$ 
 
 where 
-$$\mathbf{z}_i=\frac{1}{|C_i|}\sum_{C_i}\mathbf{x}$$
+$$\mathbf{z}_i=\frac{1}{|C_i|}\sum_{\mathbf{x} \in C}\mathbf{x}$$
 <!-- $$
 {\mathbf{z}}_i = \frac{1}{|C_i|} 
 \sum_{\mathbf{x} \in C_i} \mathbf{x}
