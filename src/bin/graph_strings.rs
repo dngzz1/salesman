@@ -14,6 +14,7 @@ fn main() {
         true,
         false,
         "clusters",
+        "Clusters",
     );
     plot(
         &points,
@@ -22,6 +23,7 @@ fn main() {
         true,
         true,
         "closed_strings",
+        "Closed Strings",
     );
     plot(
         &points,
@@ -30,6 +32,7 @@ fn main() {
         false,
         true,
         "open_strings",
+        "Open Strings",
     );
 }
 
@@ -40,6 +43,7 @@ fn plot(
     is_loop: bool,
     display_string: bool,
     filename: &str,
+    caption: &str,
 ) {
     let points = _points.to_vec();
     let order = _order.to_vec();
@@ -53,7 +57,7 @@ fn plot(
     root_drawing_area.fill(&WHITE).unwrap();
 
     let mut ctx = ChartBuilder::on(&root_drawing_area)
-        .caption("Strings", ("sans-serif", 40))
+        .caption(caption, ("sans-serif", 40))
         .build_cartesian_2d(-1.2_f32..1.2, -1.2_f32..1.2)
         .unwrap();
 
