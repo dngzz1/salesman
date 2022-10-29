@@ -48,8 +48,9 @@ I tried to modify the simulated annealing algorithm for the single traveling sal
 The clustering algorithm can also use simulated annealing. The _cluster metric_ is 
 $$\mathcal{M}(C_1, C_2,...,C_k) = \sum_{i=1}^k \sum_{\mathbf{x}_j \in C_i} \lVert \mathbf{x}_j - \mathbf{z}_i \rVert$$ 
 
-where $\mathbf{z}_i$ is the barycenter of cluster $i$. See this [article](http://library.isical.ac.in:8080/jspui/bitstream/10263/5650/1/Clustering%20using%20simulated%20annealing%20with%20probabilistic%20redistribution-IJOPRAAI-15-2-2001-%20p%20269-285.pdf).
+where $\mathbf{z}_i$ is the barycenter of cluster $i$. See [this](http://library.isical.ac.in:8080/jspui/bitstream/10263/5650/1/Clustering%20using%20simulated%20annealing%20with%20probabilistic%20redistribution-IJOPRAAI-15-2-2001-%20p%20269-285.pdf) article.
 
+The result:
 <p align="center">
 <img src="images/example_1/clusters.png" width="300" height="300">
 </p>
@@ -60,7 +61,7 @@ We then run the salesman algorithm on each cluster.
 <img src="images/example_1/closed_strings.png" width="300" height="300">
 </p>
 
-If we don't require the salesmen to return to the original position, a good enough solution would be to remove the longest path 
+If we don't require the salesmen to return to the original position, a good enough solution would be to remove the longest path:
 
 <p align="center">
 <img src="images/example_1/open_strings.png" width="300" height="300">
