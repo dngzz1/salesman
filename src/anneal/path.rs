@@ -4,7 +4,7 @@
 //!
 //!
 
-use crate::untangle;
+use crate::utils::untangle;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
@@ -138,7 +138,7 @@ fn path_order_once(
         result = path.order;
     }
     if !is_loop {
-        result = crate::untangle::disconnect_longest_string(points, &result)
+        result = crate::utils::untangle::disconnect_longest_string(points, &result)
     }
     result
 }

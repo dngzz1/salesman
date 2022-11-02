@@ -45,7 +45,7 @@ where
             is_loop,
             seed,
         );
-        clustered_order = crate::permute::permute_slice(
+        clustered_order = crate::utils::permute::permute_slice(
             &clustered_order,
             &(range_start..range_end).collect::<Vec<usize>>().to_vec(),
             &slice_order,
