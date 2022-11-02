@@ -25,7 +25,7 @@ pub fn get_string_order(
         for j in range_start..range_end {
             filtered_points.push(points[clustered_order[j]]);
         }
-        let slice_order = crate::anneal::shortest_path_order(&filtered_points, 2, false, seed);
+        let slice_order = crate::anneal::shortest_path_order(&filtered_points, 5, false, seed);
         clustered_order = crate::permute::permute_slice(
             &clustered_order,
             &(range_start..range_end).collect::<Vec<usize>>().to_vec(),

@@ -1,95 +1,107 @@
-use std::ops::Range;
-
-use rand::Rng;
-
-#[derive(Debug, Clone, PartialEq)]
+// #[derive(Debug, Clone)]
 pub struct Block {
-    pub n_rows: usize,
-    pub n_cols: usize,
-    pub delta_row: f32,
-    pub delta_col: f32,
-    pub min_x: f32,
-    pub min_y: f32,
-    pub max_x: f32,
-    pub max_y: f32,
-    pub width: f32,
-    pub height: f32,
-    pub pos_center: (f32, f32),
-    pub points: Vec<(f32, f32)>,
+    pub pos_top_left: (f32, f32),
+    pub nx: usize,
+    pub ny: usize,
+    pub dx: f32,
+    pub dy: f32,
+    pub shape: Vec<bool>,
+    data: Vec<Option<(f32, f32)>>,
+    pub n_points: usize,
 }
 
 impl Block {
-    pub fn new(
-        n_rows: usize,
-        n_cols: usize,
-        delta_row: f32,
-        delta_col: f32,
-        pos_center: (f32, f32),
+    pub fn new_from_bool(
+        pos_top_left: (f32, f32),
+        nx: usize,
+        ny: usize,
+        dx: f32,
+        dy: f32,
+        shape: Vec<bool>,
     ) -> Self {
-        let width = delta_row * n_rows as f32;
-        let height = delta_col * n_cols as f32;
-        let min_x = pos_center.0 - width / 2.0;
-        let min_y = pos_center.1 - height / 2.0;
-        let max_x = pos_center.0 + width / 2.0;
-        let max_y = pos_center.1 + height / 2.0;
-        let mut points = Vec::new();
-        for i in 0..n_rows {
-            for j in 0..n_cols {
-                let x = min_x + i as f32 * delta_row;
-                let y = min_y + j as f32 * delta_col;
-                points.push((x, y));
+        assert!(shape.len() / nx == ny);
+        let n_points = shape.iter().filter(|&x| *x).count();
+        let mut data = Vec::new();
+        for j in 0..ny {
+            for i in 0..nx {
+                let index = j * nx + i;
+                if shape[index] {
+                    let x = pos_top_left.0 + dy * i as f32;
+                    let y = pos_top_left.1 + dx * j as f32;
+                    data.push(Some((x, y)));
+                } else {
+                    data.push(None);
+                }
             }
         }
         Self {
-            n_rows,
-            n_cols,
-            delta_row,
-            delta_col,
-            min_x,
-            min_y,
-            max_x,
-            max_y,
-            width,
-            height,
-            pos_center,
-            points,
+            pos_top_left,
+            nx,
+            ny,
+            dx,
+            dy,
+            shape,
+            data,
+            n_points,
         }
     }
-
-    pub fn new_rand(
-        n_rows: usize,
+    pub fn new_from_b_coords(
+        pos_top_left: (f32, f32),
         n_cols: usize,
+        n_rows: usize,
         delta_row: f32,
         delta_col: f32,
-        x_range: Range<f32>,
-        y_range: Range<f32>,
-    ) -> Block {
-        let width = delta_row * n_rows as f32;
-        let height = delta_col * n_cols as f32;
-        let x_min = x_range.start + width / 2.0;
-        let x_max = x_range.end - width / 2.0;
-        let y_min = y_range.start + height / 2.0;
-        let y_max = y_range.end - height / 2.0;
-        let center_x = rand::thread_rng().gen_range(x_min..x_max);
-        let center_y = rand::thread_rng().gen_range(y_min..y_max);
-        let pos_center = (center_x, center_y);
-        Block::new(n_rows, n_cols, delta_row, delta_col, pos_center)
+        b_coords: Vec<(usize, usize)>,
+    ) -> Self {
+        let shape = b_coord_to_shape(n_cols, n_rows, b_coords);
+        Block::new_from_bool(pos_top_left, n_cols, n_rows, delta_row, delta_col, shape)
+    }
+
+    pub fn get_points(&self, flip_y: bool) -> Vec<(f32, f32)> {
+        self.data
+            .iter()
+            .filter(|&&p| p.is_some())
+            .map(|&p| p.unwrap())
+            .map(|p| match flip_y {
+                true => (p.0, -p.1),
+                false => p,
+            })
+            .collect::<Vec<_>>()
     }
 }
 
-pub fn overlapping(block0: &Block, block1: &Block) -> bool {
-    let min_x = block1.min_x;
-    let min_y = block1.min_y;
-    let max_x = block1.max_x;
-    let max_y = block1.max_y;
-    let p = (block0.min_x, block0.min_y);
-    let q = (block0.max_x, block0.max_y);
-    let r = (block0.min_x, block0.max_y);
-    let s = (block0.max_x, block0.min_y);
-    min_x <= p.0 && p.0 <= max_x && min_y <= p.1 && p.1 <= max_y
-        || min_x <= q.0 && q.0 <= max_x && min_y <= q.1 && q.1 <= max_y
-        || min_x <= r.0 && r.0 <= max_x && min_y <= r.1 && r.1 <= max_y
-        || min_x <= s.0 && s.0 <= max_x && min_y <= s.1 && s.1 <= max_y
+#[allow(dead_code)]
+fn b_coord_to_shape(n_cols: usize, n_rows: usize, b_coords: Vec<(usize, usize)>) -> Vec<bool> {
+    let mut shape = vec![false; n_cols * n_rows];
+    for coord in b_coords {
+        let (i, j) = coord;
+        let index = i * n_cols + j;
+        shape[index] = true;
+    }
+    shape
+}
+
+#[allow(dead_code)]
+fn get_b_coord_from_index(nx: usize, ny: usize, index: usize) -> (usize, usize) {
+    (index % nx, index / ny)
+}
+
+#[allow(dead_code)]
+fn get_neighbor_indices(nx: usize, ny: usize, index: usize) -> Vec<usize> {
+    let mut neighbor_indices = Vec::new();
+    if index >= nx {
+        neighbor_indices.push(index - nx);
+    }
+    if index % nx != 0 {
+        neighbor_indices.push(index - 1);
+    }
+    if index % nx != nx - 1 {
+        neighbor_indices.push(index + 1);
+    }
+    if index + nx < nx * ny {
+        neighbor_indices.push(index + nx);
+    }
+    neighbor_indices
 }
 
 #[cfg(test)]

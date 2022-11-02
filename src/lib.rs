@@ -1,6 +1,7 @@
 pub mod anneal;
-mod block;
+pub mod block;
 pub mod cluster;
+pub mod distance;
 pub mod example;
 mod intersection;
 mod permute;

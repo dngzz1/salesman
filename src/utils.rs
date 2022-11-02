@@ -1,16 +1,10 @@
 use ordered_float::NotNan;
 
-pub fn distance(p: (f32, f32), q: (f32, f32)) -> f32 {
-    let dx = p.0 - q.0;
-    let dy = p.1 - q.1;
-    (dx * dx + dy * dy).sqrt()
-}
-
 pub fn loop_distance(points: &[(f32, f32)]) -> f32 {
     let mut sum = 0.0;
     for i in 0..points.len() {
         let j = (i + 1) % points.len();
-        sum += crate::utils::distance(points[i], points[j]);
+        sum += crate::distance::euclidean(points[i], points[j]);
     }
     sum
 }

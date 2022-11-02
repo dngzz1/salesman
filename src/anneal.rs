@@ -13,18 +13,19 @@ struct Path {
     length: usize,
     order: Vec<usize>,
     distances: Vec<f32>,
+    is_loop: bool,
     rng: Option<ChaCha8Rng>,
 }
 
 impl Path {
-    fn new(points: &[(f32, f32)], seed: Option<u64>) -> Self {
+    fn new(points: &[(f32, f32)], is_loop: bool, seed: Option<u64>) -> Self {
         let points = points.to_owned();
         let length = points.len();
         let order = (0..length).collect::<Vec<usize>>();
         let mut distances = vec![0.0; length * length];
         for i in 0..length {
             for j in 0..length {
-                distances[i * length + j] = crate::utils::distance(points[i], points[j]);
+                distances[i * length + j] = crate::distance::euclidean(points[i], points[j]);
             }
         }
         let rng = seed.map(ChaCha8Rng::seed_from_u64);
@@ -33,6 +34,7 @@ impl Path {
             length,
             order,
             distances,
+            is_loop,
             rng,
         }
     }
@@ -79,8 +81,7 @@ impl Path {
         s
     }
 
-    #[allow(dead_code)]
-    fn delta_distance_slow(&self, i: usize, j: usize) -> f32 {
+    fn delta_distance_no_loop(&self, i: usize, j: usize) -> f32 {
         let original_order = self.order.clone();
         let swapped_order;
         {
@@ -90,10 +91,9 @@ impl Path {
         }
         let mut original_distance = 0.0;
         let mut swapped_distance = 0.0;
-        for i in 0..self.length {
-            let j = (i + 1) % self.length;
-            original_distance += self.distance(original_order[i], original_order[j]);
-            swapped_distance += self.distance(swapped_order[i], swapped_order[j]);
+        for i in 0..(self.length - 1) {
+            original_distance += self.distance(original_order[i], original_order[i + 1]);
+            swapped_distance += self.distance(swapped_order[i], swapped_order[i + 1]);
         }
         swapped_distance - original_distance
     }
@@ -101,7 +101,10 @@ impl Path {
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
         let j = self.random_pos();
-        let delta = self.delta_distance(i, j);
+        let delta = match self.is_loop {
+            true => self.delta_distance(i, j),
+            false => self.delta_distance_no_loop(i, j),
+        };
         let r: f32 = match &mut self.rng {
             Some(chacha) => chacha.gen(),
             None => rand::thread_rng().gen(),
@@ -118,14 +121,14 @@ fn path_order_once(
     is_loop: bool,
     seed: Option<u64>,
 ) -> Vec<usize> {
-    let mut path = Path::new(points, seed);
+    let mut path = Path::new(points, is_loop, seed);
     if points.len() < 2 {
         return path.order;
     }
     let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
-    let mut temperature = 100.0 * crate::utils::distance(path.access(0), path.access(1));
+    let mut temperature = 100.0 * crate::distance::euclidean(path.access(0), path.access(1));
     while temperature > 1e-6 {
         path.change(temperature);
         temperature *= temp_coeff;
