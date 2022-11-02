@@ -6,7 +6,7 @@
 /// let salesmen_capacities = vec![3, 3];
 /// let distance_fn = salesman::distance::euclidean;
 /// let is_loop = false;
-/// let intensity = 10.0;
+/// let intensity = 11.0;
 /// let seed = Some(42);
 /// let order = get_string_order(&points, &salesmen_capacities, &distance_fn, is_loop, intensity, seed);
 /// assert!(&order[0..3] == &vec![0, 1, 2] || &order[0..3] == &vec![2, 1, 0]);
@@ -34,7 +34,7 @@ where
         }
         let distances = crate::distance::make_distance_vec(&filtered_points, distance_fn);
         let slice_order =
-            crate::anneal::shortest_path_order(&filtered_points, &distances, 1, is_loop, seed);
+            crate::anneal::shortest_path_order(&filtered_points, &distances, 3, is_loop, seed);
         clustered_order = crate::permute::permute_slice(
             &clustered_order,
             &(range_start..range_end).collect::<Vec<usize>>().to_vec(),

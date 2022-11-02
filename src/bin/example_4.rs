@@ -2,22 +2,22 @@ use salesman::block::Block;
 use std::fs;
 
 fn main() {
-    let filename = "resources/blocks/block00.txt";
+    let filename = "resources/blocks/block01.txt";
     draw_block(filename);
 }
 
 fn draw_block(filename: &str) {
     let (nx, ny, shape) = get_shape(filename);
-    let pos_top_left = (-0.5, -0.9);
+    let pos_top_left = (-0.9, -0.9);
     let delta_col = 0.1;
     let delta_row = 0.1;
     let block = Block::new_from_bool(pos_top_left, nx, ny, delta_col, delta_row, shape);
     let points = block.get_points(true);
     let distance_fn = salesman::distance::landscape_euclidean;
-    let is_loop = true;
+    let is_loop = false;
 
     let salesmen_capacities = {
-        let salesman_capacity = 5;
+        let salesman_capacity = 7;
         let n_strings = block.n_points / salesman_capacity;
         let leftover = block.n_points % salesman_capacity;
 
@@ -32,7 +32,7 @@ fn draw_block(filename: &str) {
         result
     };
     println!("{} points, {:?}", block.n_points, salesmen_capacities);
-    let intensity = 10.0;
+    let intensity = 11.0;
     let seed = None;
     let order = salesman::string::get_string_order(
         &points,
@@ -42,7 +42,6 @@ fn draw_block(filename: &str) {
         intensity,
         seed,
     );
-    let is_loop = true;
     let display_string = true;
     let filename = "example_4/block";
     let caption = "Block";
