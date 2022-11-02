@@ -133,7 +133,7 @@ fn path_order_once(
         temperature *= temp_coeff;
     }
     let mut result;
-    if untangle {
+    if untangle && is_loop {
         result = untangle::get_untangled_order(points, &path.order);
     } else {
         result = path.order;

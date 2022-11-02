@@ -31,7 +31,7 @@ fn draw_block(filename: &str) {
         }
     };
     println!("{} points, {:?}", block.n_points, salesmen_capacities);
-    let intensity = 11.0;
+    let intensity = 12.0;
     let seed = None;
     let order = salesman::string::get_string_order(
         &points,
