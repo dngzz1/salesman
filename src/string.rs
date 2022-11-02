@@ -19,10 +19,10 @@ pub fn get_string_order<F>(
     seed: Option<u64>,
 ) -> Vec<usize>
 where
-    F: Fn((f32, f32), (f32, f32)) -> f32,
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
 {
     let mut clustered_order =
-        crate::cluster::cluster_order(points, salesmen_capacities, intensity, seed);
+        crate::cluster::cluster_order(points, salesmen_capacities, distance_fn, intensity, seed);
     for i in 0..salesmen_capacities.len() {
         let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
         let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();

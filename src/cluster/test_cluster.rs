@@ -15,20 +15,21 @@ fn test_cluster_i_metric_from_order() {
         .collect::<Vec<(f32, f32)>>();
     let order = vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
     let salesmen_capacities = vec![2, 3, 5];
+    let distance_fn = crate::distance::euclidean;
     assert_eq!(
-        cluster_i_metric_from_order(&points, &salesmen_capacities, &order, 0),
+        cluster_i_metric_from_order(&points, &salesmen_capacities, &distance_fn, &order, 0),
         1.0
     );
     assert_eq!(
-        cluster_i_metric_from_order(&points, &salesmen_capacities, &order, 1),
+        cluster_i_metric_from_order(&points, &salesmen_capacities, &distance_fn, &order, 1),
         2.0
     );
     assert_eq!(
-        cluster_i_metric_from_order(&points, &salesmen_capacities, &order, 2),
+        cluster_i_metric_from_order(&points, &salesmen_capacities, &distance_fn, &order, 2),
         6.0
     );
     assert_eq!(
-        cluster_metric_from_order(&points, &salesmen_capacities, &order),
+        cluster_metric_from_order(&points, &salesmen_capacities, &distance_fn, &order),
         9.0
     );
 }

@@ -2,26 +2,40 @@ use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
 
 #[derive(Debug, Clone)]
-struct Cluster {
+struct Cluster<F>
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
     points: Vec<(f32, f32)>,
     length: usize,
+    distance_fn: F,
     order: Vec<usize>,
     salesmen_capacities: Vec<usize>,
     rng: Option<ChaCha8Rng>,
 }
 
-impl Cluster {
-    fn new(points: &[(f32, f32)], salesmen_capacities: &[usize], seed: Option<u64>) -> Self {
+impl<F> Cluster<F>
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
+    fn new(
+        points: &[(f32, f32)],
+        salesmen_capacities: &[usize],
+        distance_fn: &F,
+        seed: Option<u64>,
+    ) -> Self {
         let points = points.to_owned();
         let length = points.len();
         assert!(length == salesmen_capacities.iter().sum()); // check valid capacities
 
         let salesmen_capacities = salesmen_capacities.to_vec();
+        let distance_fn = distance_fn.to_owned();
         let order = (0..length).collect::<Vec<usize>>();
         let rng = seed.map(ChaCha8Rng::seed_from_u64);
         Self {
             points,
             length,
+            distance_fn,
             order,
             salesmen_capacities,
             rng,
@@ -55,10 +69,18 @@ impl Cluster {
             vec.swap(i, j);
             swapped_order = vec;
         }
-        let original_distance =
-            cluster_metric_from_order(&self.points, &self.salesmen_capacities, original_order);
-        let swapped_distance =
-            cluster_metric_from_order(&self.points, &self.salesmen_capacities, &swapped_order);
+        let original_distance = cluster_metric_from_order(
+            &self.points,
+            &self.salesmen_capacities,
+            &self.distance_fn,
+            original_order,
+        );
+        let swapped_distance = cluster_metric_from_order(
+            &self.points,
+            &self.salesmen_capacities,
+            &self.distance_fn,
+            &swapped_order,
+        );
         swapped_distance - original_distance
     }
 
@@ -76,12 +98,16 @@ impl Cluster {
     }
 }
 
-fn cluster_i_metric_from_order(
+fn cluster_i_metric_from_order<F>(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
+    distance_fn: &F,
     order: &[usize],
     i: usize,
-) -> f32 {
+) -> f32
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
     assert!(i < salesmen_capacities.len());
     let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
     let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();
@@ -89,17 +115,21 @@ fn cluster_i_metric_from_order(
         .iter()
         .map(|&j| points[j])
         .collect::<Vec<_>>();
-    cluster_metric(&relevant_points)
+    cluster_metric(&relevant_points, distance_fn)
 }
 
-fn cluster_metric_from_order(
+fn cluster_metric_from_order<F>(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
+    distance_fn: &F,
     order: &[usize],
-) -> f32 {
+) -> f32
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
     let mut result = 0.0;
     for i in 0..salesmen_capacities.len() {
-        result += cluster_i_metric_from_order(points, salesmen_capacities, order, i)
+        result += cluster_i_metric_from_order(points, salesmen_capacities, distance_fn, order, i)
     }
     result
 }
@@ -111,11 +141,14 @@ fn barycenter(points: &[(f32, f32)]) -> (f32, f32) {
     (x / n, y / n)
 }
 
-fn cluster_metric(points: &[(f32, f32)]) -> f32 {
+fn cluster_metric<F>(points: &[(f32, f32)], distance_fn: &F) -> f32
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
     let b = barycenter(points);
     let mut result = 0.0;
     for &point in points {
-        result += distance(point, b);
+        result += distance_fn(point, b);
     }
     result
 }
@@ -144,13 +177,17 @@ fn get_cluster_from_order(points: &[(f32, f32)], order: &[usize]) -> Vec<(f32, f
 }
 
 #[allow(dead_code)]
-fn best_cluster(
+fn best_cluster<F>(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
+    distance_fn: &F,
     intensity: f32,
     seed: Option<u64>,
-) -> Vec<(f32, f32)> {
-    let order = cluster_order(points, salesmen_capacities, intensity, seed);
+) -> Vec<(f32, f32)>
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
+    let order = cluster_order(points, salesmen_capacities, distance_fn, intensity, seed);
     get_cluster_from_order(points, &order)
 }
 
@@ -167,13 +204,17 @@ fn best_cluster(
 /// assert!(order[2..4].contains(&1));
 /// assert!(order[2..4].contains(&3));
 /// ```
-pub fn cluster_order(
+pub fn cluster_order<F>(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
+    distance_fn: &F,
     intensity: f32,
     seed: Option<u64>,
-) -> Vec<usize> {
-    let mut cluster = Cluster::new(points, salesmen_capacities, seed);
+) -> Vec<usize>
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
+{
+    let mut cluster = Cluster::new(points, salesmen_capacities, distance_fn, seed);
     if points.len() < 2 {
         return cluster.order;
     }

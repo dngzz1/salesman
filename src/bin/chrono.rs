@@ -9,11 +9,18 @@ fn time_cluster_duration_varying_num_points() {
     let arr = [20, 40, 80, 160, 320, 640];
     let intensity = 10.0;
     let seed = Some(42);
+    let distance_fn = salesman::distance::euclidean;
     for num_points in arr {
         let rand_points = salesman::example::rand_points(num_points, seed);
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
-            salesman::cluster::cluster_order(&rand_points, &salesmen_capacities, intensity, seed);
+            salesman::cluster::cluster_order(
+                &rand_points,
+                &salesmen_capacities,
+                &distance_fn,
+                intensity,
+                seed,
+            );
         };
         println!(
             "Clustering with {} points: {} milliseconds.",
@@ -26,12 +33,20 @@ fn time_cluster_duration_varying_num_points() {
 fn time_cluster_duration_varying_intensity() {
     let arr = [10., 10.5, 11., 11.5, 12.];
     let num_points = 40;
+    let distance_fn = salesman::distance::euclidean;
+
     let seed = Some(42);
     let rand_points = salesman::example::rand_points(num_points, seed);
     for intensity in arr {
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
-            salesman::cluster::cluster_order(&rand_points, &salesmen_capacities, intensity, seed);
+            salesman::cluster::cluster_order(
+                &rand_points,
+                &salesmen_capacities,
+                &distance_fn,
+                intensity,
+                seed,
+            );
         };
         println!(
             "Clustering with intensity {}: {} milliseconds.",
