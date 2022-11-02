@@ -11,7 +11,7 @@ fn time_cluster_duration_varying_num_points() {
     let seed = Some(42);
     let distance_fn = salesman::utils::distance::euclidean;
     for num_points in arr {
-        let rand_points = salesman::example::rand_points(num_points, seed);
+        let rand_points = salesman::utils::rand::get_points(num_points, seed);
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
             salesman::anneal::cluster::cluster_order(
@@ -36,7 +36,7 @@ fn time_cluster_duration_varying_intensity() {
     let distance_fn = salesman::utils::distance::euclidean;
 
     let seed = Some(42);
-    let rand_points = salesman::example::rand_points(num_points, seed);
+    let rand_points = salesman::utils::rand::get_points(num_points, seed);
     for intensity in arr {
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
@@ -61,7 +61,7 @@ fn time_salesman_duration() {
     let arr = [10, 20, 40, 80, 160, 300, 320];
     let seed = Some(42);
     for num_points in arr {
-        let rand_points = salesman::example::rand_points(num_points, seed);
+        let rand_points = salesman::utils::rand::get_points(num_points, seed);
         let distances = salesman::utils::distance::make_distance_vec(
             &rand_points,
             &salesman::utils::distance::euclidean,

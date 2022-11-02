@@ -3,7 +3,7 @@ use rand_chacha::ChaCha8Rng;
 
 /// Creates a vector of random points between -1.0 and 1.0.
 /// If the seed is none, then thread_rng will be used.
-pub fn rand_points(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
+pub fn get_points(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
     let mut points = Vec::new();
     if let Some(i) = seed {
         let mut rng = ChaCha8Rng::seed_from_u64(i);

@@ -1,7 +1,7 @@
 use plotters::prelude::*;
 fn main() {
     let seed = Some(42);
-    let rand_points = salesman::example::rand_points(20, seed);
+    let rand_points = salesman::utils::rand::get_points(20, seed);
     let distance_fn = salesman::utils::distance::euclidean;
     let distances = salesman::utils::distance::make_distance_vec(&rand_points, &distance_fn);
     let order =
