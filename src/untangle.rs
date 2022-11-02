@@ -1,4 +1,4 @@
-use crate::intersection;
+mod intersection;
 
 pub fn get_untangled_order(points: &[(f32, f32)], order: &[usize]) -> Vec<usize> {
     let mut new_order = order.to_vec();

@@ -3,7 +3,6 @@ pub mod block;
 pub mod cluster;
 pub mod distance;
 pub mod example;
-mod intersection;
 mod permute;
 pub mod plot;
 pub mod string;
