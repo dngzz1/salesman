@@ -18,16 +18,12 @@ struct Path {
 }
 
 impl Path {
-    fn new(points: &[(f32, f32)], is_loop: bool, seed: Option<u64>) -> Self {
+    fn new(points: &[(f32, f32)], distances: Vec<f32>, is_loop: bool, seed: Option<u64>) -> Self {
         let points = points.to_owned();
         let length = points.len();
         let order = (0..length).collect::<Vec<usize>>();
-        let mut distances = vec![0.0; length * length];
-        for i in 0..length {
-            for j in 0..length {
-                distances[i * length + j] = crate::distance::euclidean(points[i], points[j]);
-            }
-        }
+        assert_eq!(distances.len(), length * length);
+        // let distances = crate::distance::make_distance_vec(&points, crate::distance::euclidean);
         let rng = seed.map(ChaCha8Rng::seed_from_u64);
         Self {
             points,
@@ -117,11 +113,12 @@ impl Path {
 
 fn path_order_once(
     points: &[(f32, f32)],
+    distances: &[f32],
     untangle: bool,
     is_loop: bool,
     seed: Option<u64>,
 ) -> Vec<usize> {
-    let mut path = Path::new(points, is_loop, seed);
+    let mut path = Path::new(points, distances.to_vec(), is_loop, seed);
     if points.len() < 2 {
         return path.order;
     }
@@ -151,15 +148,17 @@ fn path_order_once(
 /// ```
 /// use salesman::anneal::shortest_path_order;
 /// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
+/// let distances = salesman::distance::make_distance_vec(&points, &salesman::distance::euclidean);
 /// let num_times = 1;
 /// let is_loop = false;
 /// let seed = Some(42);
-/// let order = shortest_path_order(&points, num_times, is_loop, seed);
+/// let order = shortest_path_order(&points, &distances, num_times, is_loop, seed);
 /// assert_eq!(order, vec![2, 0, 3, 1]);
 ///
 /// ```
 pub fn shortest_path_order(
     points: &[(f32, f32)],
+    distances: &[f32],
     num_times: usize,
     is_loop: bool,
     seed: Option<u64>,
@@ -167,7 +166,7 @@ pub fn shortest_path_order(
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
-        let order = path_order_once(points, true, is_loop, seed);
+        let order = path_order_once(points, distances, true, is_loop, seed);
         orders.push(order.clone());
         let path = get_path_from_order(points, &order);
         loop_distances.push(crate::utils::loop_distance(&path));
@@ -181,20 +180,22 @@ pub fn shortest_path_order(
 /// ```
 /// use salesman::anneal::shortest_path;
 /// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
+/// let distances = salesman::distance::make_distance_vec(&points, &salesman::distance::euclidean);
 /// let num_times = 1;
 /// let is_loop = false;
 /// let seed = Some(42);
-/// let path = shortest_path(&points, num_times, is_loop, seed);
+/// let path = shortest_path(&points, &distances, num_times, is_loop, seed);
 /// assert_eq!(path, vec![(0.,0.32), (0.1,-0.1), (0.3,0.1), (0.5,0.25)]);
 ///
 /// ```
 pub fn shortest_path(
     points: &[(f32, f32)],
+    distances: &[f32],
     num_times: usize,
     is_loop: bool,
     seed: Option<u64>,
 ) -> Vec<(f32, f32)> {
-    let order = shortest_path_order(points, num_times, is_loop, seed);
+    let order = shortest_path_order(points, distances, num_times, is_loop, seed);
     get_path_from_order(points, &order)
 }
 

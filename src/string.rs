@@ -4,18 +4,23 @@
 /// use salesman::string::get_string_order;
 /// let points = vec![(-0.5, -0.5), (-0.6, -0.5), (-0.6, -0.4), (0.5, 0.5), (0.6, 0.5), (0.6, 0.6)];
 /// let salesmen_capacities = vec![3, 3];
+/// let distance_fn = salesman::distance::euclidean;
 /// let intensity = 10.0;
 /// let seed = Some(42);
-/// let order = get_string_order(&points, &salesmen_capacities, intensity, seed);
+/// let order = get_string_order(&points, &salesmen_capacities, &distance_fn, intensity, seed);
 /// assert!(&order[0..3] == &vec![0, 1, 2] || &order[0..3] == &vec![2, 1, 0]);
 /// assert!(&order[3..6] == &vec![3, 4, 5] || &order[3..6] == &vec![5, 4, 3]);
 /// ```
-pub fn get_string_order(
+pub fn get_string_order<F>(
     points: &[(f32, f32)],
     salesmen_capacities: &[usize],
+    distance_fn: &F,
     intensity: f32,
     seed: Option<u64>,
-) -> Vec<usize> {
+) -> Vec<usize>
+where
+    F: Fn((f32, f32), (f32, f32)) -> f32,
+{
     let mut clustered_order =
         crate::cluster::cluster_order(points, salesmen_capacities, intensity, seed);
     for i in 0..salesmen_capacities.len() {
@@ -25,7 +30,9 @@ pub fn get_string_order(
         for j in range_start..range_end {
             filtered_points.push(points[clustered_order[j]]);
         }
-        let slice_order = crate::anneal::shortest_path_order(&filtered_points, 5, false, seed);
+        let distances = crate::distance::make_distance_vec(&filtered_points, distance_fn);
+        let slice_order =
+            crate::anneal::shortest_path_order(&filtered_points, &distances, 5, false, seed);
         clustered_order = crate::permute::permute_slice(
             &clustered_order,
             &(range_start..range_end).collect::<Vec<usize>>().to_vec(),

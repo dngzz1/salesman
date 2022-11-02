@@ -47,8 +47,10 @@ fn time_salesman_duration() {
     let seed = Some(42);
     for num_points in arr {
         let rand_points = salesman::example::rand_points(num_points, seed);
+        let distances =
+            salesman::distance::make_distance_vec(&rand_points, &salesman::distance::euclidean);
         let f = || {
-            salesman::anneal::shortest_path(&rand_points, 1, true, seed);
+            salesman::anneal::shortest_path(&rand_points, &distances, 1, true, seed);
         };
         println!(
             "Salesman with {} points: {} milliseconds.",

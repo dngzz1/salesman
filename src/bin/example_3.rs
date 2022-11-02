@@ -12,10 +12,18 @@ fn main() {
     shape[15] = false;
     let block = Block::new_from_bool(pos_top_left, n_cols, n_rows, delta_col, delta_row, shape);
     let points = block.get_points(true);
+    let distance_fn = salesman::distance::euclidean;
+
     let salesmen_capacities = vec![12, 12, 6, 5];
     let intensity = 10.0;
     let seed = None;
-    let order = salesman::string::get_string_order(&points, &salesmen_capacities, intensity, seed);
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        intensity,
+        seed,
+    );
     let is_loop = false;
     let display_string = true;
     let filename = "example_3/block";

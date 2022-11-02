@@ -4,8 +4,16 @@ fn main() {
     let seed = Some(42);
     let intensity = 10.0;
     let points = salesman::example::rand_points(num_points, seed);
+    let distance_fn = salesman::distance::euclidean;
+
     let salesmen_capacities = [12, 12, 10, 8, 8, 6, 4];
-    let order = salesman::string::get_string_order(&points, &salesmen_capacities, intensity, seed);
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        intensity,
+        seed,
+    );
     plot_strings(
         &points,
         &order,

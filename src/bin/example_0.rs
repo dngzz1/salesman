@@ -11,7 +11,14 @@ fn main() {
         (0.6, 0.6),
     ];
     let salesmen_capacities = vec![3, 3];
-    let order = salesman::string::get_string_order(&points, &salesmen_capacities, intensity, seed);
+    let distance_fn = salesman::distance::euclidean;
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        intensity,
+        seed,
+    );
     plot_strings(
         &points,
         &order,
