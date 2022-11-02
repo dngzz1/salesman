@@ -196,9 +196,10 @@ where
 /// use salesman::cluster::cluster_order;
 /// let points = vec![(-0.5, -0.5), (0.5, 0.5), (-0.6, -0.5), (0.5, 0.6)];
 /// let salesmen_capacities = vec![2, 2];
+/// let distance_fn = salesman::distance::euclidean;
 /// let intensity = 10.0;
 /// let seed = None;
-/// let order = cluster_order(&points, &salesmen_capacities, intensity, seed);
+/// let order = cluster_order(&points, &salesmen_capacities, &distance_fn, intensity, seed);
 /// assert!(order[0..2].contains(&0));
 /// assert!(order[0..2].contains(&2));
 /// assert!(order[2..4].contains(&1));

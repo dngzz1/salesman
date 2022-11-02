@@ -12,10 +12,13 @@ fn main() {
     ];
     let salesmen_capacities = vec![3, 3];
     let distance_fn = salesman::distance::euclidean;
+    let is_loop = false;
+
     let order = salesman::string::get_string_order(
         &points,
         &salesmen_capacities,
         &distance_fn,
+        is_loop,
         intensity,
         seed,
     );
