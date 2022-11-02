@@ -176,7 +176,7 @@ pub fn shortest_path_order(
                 sum += distances[i * length + (i + 1)];
             }
             if is_loop {
-                sum += distances[0 * length + (length - 1)];
+                sum += distances[length - 1];
             }
             sum
         };

@@ -21,15 +21,14 @@ fn draw_block(filename: &str) {
         let n_strings = block.n_points / salesman_capacity;
         let leftover = block.n_points % salesman_capacity;
 
-        let result = match leftover {
+        match leftover {
             0 => vec![salesman_capacity; n_strings],
             _ => {
                 let mut tmp = vec![salesman_capacity; n_strings];
                 tmp.push(leftover);
                 tmp
             }
-        };
-        result
+        }
     };
     println!("{} points, {:?}", block.n_points, salesmen_capacities);
     let intensity = 11.0;
