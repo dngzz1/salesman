@@ -13,7 +13,20 @@ pub fn plot_strings(
     let salesmen_capacities = _salesmen_capacities.to_vec();
 
     // Plot the result and save to folder images/<filename>
-    let my_colors = [&BLACK, &RED, &BLUE, &GREEN, &MAGENTA, &CYAN];
+    let my_colors = [
+        &BLACK,
+        &RED,
+        &BLUE,
+        &GREEN,
+        &MAGENTA,
+        &CYAN,
+        &YELLOW,
+        &RGBColor(255, 165, 0),   // ORANGE
+        &RGBColor(75, 0, 130),    // INDIGO
+        &RGBColor(30, 144, 255),  // DODGER BLUE
+        &RGBColor(34, 139, 34),   // FOREST GREEN
+        &RGBColor(255, 105, 180), // HOT PINK
+    ];
 
     let pathname = &format!("images/{}.png", filename);
     let root_drawing_area = BitMapBackend::new(pathname, (768, 768)).into_drawing_area();

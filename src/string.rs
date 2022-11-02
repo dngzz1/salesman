@@ -41,7 +41,7 @@ where
         let slice_order = crate::anneal::path::shortest_path_order(
             &filtered_points,
             &distances,
-            3,
+            1,
             is_loop,
             seed,
         );

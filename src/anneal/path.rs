@@ -80,17 +80,18 @@ impl Path {
 
     fn delta_distance_no_loop(&self, i: usize, j: usize) -> f32 {
         let original_order = self.order.clone();
-        let swapped_order;
-        {
+        let swapped_order = {
             let mut vec = original_order.clone();
             vec.swap(i, j);
-            swapped_order = vec;
-        }
+            vec
+        };
         let mut original_distance = 0.0;
         let mut swapped_distance = 0.0;
         for i in 0..(self.length - 1) {
-            original_distance += self.distance(original_order[i], original_order[i + 1]);
-            swapped_distance += self.distance(swapped_order[i], swapped_order[i + 1]);
+            original_distance +=
+                self.distances[original_order[i] * self.length + original_order[i + 1]];
+            swapped_distance +=
+                self.distances[swapped_order[i] * self.length + swapped_order[i + 1]];
         }
         swapped_distance - original_distance
     }
@@ -172,7 +173,7 @@ pub fn shortest_path_order(
         orders.push(order.clone());
         let total_distance = {
             let mut sum = 0.;
-            for i in 0..(order.len() - 1) {
+            for i in 0..(length - 1) {
                 sum += distances[i * length + (i + 1)];
             }
             if is_loop {
