@@ -5,6 +5,7 @@ use rand_chacha::ChaCha8Rng;
 pub struct GeneParameters {
     pub n_individuals: usize,
     pub max_individuals: usize,
+    pub max_rounds: usize,
 }
 
 pub struct GeneticManager<F>
@@ -17,7 +18,6 @@ where
     n_points: usize,
     salesmen_capacities: Vec<usize>,
     distance_fn: F,
-    seed: Option<u64>,
     gene_parameters: GeneParameters,
     rng: Option<ChaCha8Rng>,
 }
@@ -56,14 +56,12 @@ where
             n_points,
             salesmen_capacities,
             distance_fn,
-            seed,
             gene_parameters,
             rng,
         }
     }
     pub fn get_fittest(&self) -> Vec<usize> {
-        let n_points = self.points.len();
-        self.data[0..n_points].to_vec()
+        self.data[0..self.n_points].to_vec()
     }
     pub fn get_fitness_of_ith_individual(&self, i: usize) -> f32 {
         let order = get_ith_block(i, &self.data, self.n_points);
@@ -74,28 +72,50 @@ where
             order,
         )
     }
-    pub fn get_fitness_order(&self) -> Vec<usize> {
-        let fitness_vec = (0..(self.data.len() / self.n_points))
-            .map(|i| {
-                get_fitness_of_ith_individual(
-                    i,
-                    &self.data,
-                    self.n_points,
-                    &self.points,
-                    &self.salesmen_capacities,
-                    &self.distance_fn,
-                )
-            })
+
+    fn get_fitness_vec(&self) -> Vec<i32> {
+        (0..(self.data.len() / self.n_points))
+            .map(|i| self.get_fitness_of_ith_individual(i))
             .map(|i| (i * 10000.0).round() as i32)
-            .collect::<Vec<_>>();
-        crate::utils::math::argsort(&fitness_vec)
+            .collect::<Vec<_>>()
     }
-    pub fn sort_fitness(&mut self) {
+    pub fn get_fitness_order(&self) -> Vec<usize> {
+        crate::utils::math::argsort(&self.get_fitness_vec())
+    }
+    fn sort_fitness(&mut self) {
         let fitness_order = self.get_fitness_order();
         self.data = crate::utils::permute::permute_rows(&self.data, self.n_points, &fitness_order)
     }
 
-    pub fn step(&mut self) {
+    pub fn step_by_crossover(&mut self) {
+        let mut new_individuals = self.data.clone();
+        while new_individuals.len() < self.gene_parameters.max_individuals * self.n_points {
+            let (i0, i1) = {
+                let mut f = || {
+                    crate::utils::rand::chacha_rand_range(
+                        0,
+                        self.data.len() / self.n_points,
+                        &mut self.rng,
+                    )
+                };
+                (f(), f())
+            };
+            let order0 = get_ith_block(i0, &self.data, self.n_points);
+            let order1 = get_ith_block(i1, &self.data, self.n_points);
+            let m0 = crate::utils::rand::chacha_rand_range(0, self.n_points, &mut self.rng);
+            let m1 = crate::utils::rand::chacha_rand_range(0, self.n_points, &mut self.rng);
+            let start = std::cmp::min(m0, m1);
+            let end = std::cmp::max(m0, m1);
+            let mut child = crossover(order0, order1, start, end);
+            mutate(&mut child, &self.salesmen_capacities, &mut self.rng);
+            new_individuals.append(&mut child);
+        }
+        self.data = new_individuals;
+        self.sort_fitness();
+        self.data.truncate(self.n_individuals * self.n_points);
+    }
+
+    pub fn step_by_swap(&mut self) {
         let mut new_individuals = self.data.clone();
         while new_individuals.len() < self.gene_parameters.max_individuals * self.n_points {
             let individual_index = crate::utils::rand::chacha_rand_range(
@@ -103,16 +123,37 @@ where
                 self.data.len() / self.n_points,
                 &mut self.rng,
             );
-            let mut individual =
-                get_ith_block(individual_index, &self.data, self.n_points).to_vec();
-            let i = crate::utils::rand::chacha_rand_range(0, self.n_points, &mut self.rng);
-            let j = crate::utils::rand::chacha_rand_range(0, self.n_points, &mut self.rng);
-            individual.swap(i, j);
-            new_individuals.append(&mut individual);
+            let mut child = get_ith_block(individual_index, &self.data, self.n_points).to_vec();
+            mutate(&mut child, &self.salesmen_capacities, &mut self.rng);
+            new_individuals.append(&mut child);
         }
         self.data = new_individuals;
         self.sort_fitness();
         self.data.truncate(self.n_individuals * self.n_points);
+    }
+
+    pub fn converged(&self) -> bool {
+        let arr = self.get_fitness_vec();
+        let first = arr[0];
+        arr.iter().all(|&item| item == first)
+    }
+
+    pub fn run_by_swap(&mut self) {
+        for round in 0..self.gene_parameters.max_rounds {
+            println!("Round {}:", round);
+            for i in 0..self.n_individuals {
+                println!(
+                    "Individual {}, fitness: {:.4}",
+                    i,
+                    self.get_fitness_of_ith_individual(i)
+                )
+            }
+            if self.converged() {
+                println!("{:?}", self.get_fitness_vec());
+                break;
+            }
+            self.step_by_swap();
+        }
     }
 }
 
@@ -133,21 +174,64 @@ where
         points,
         salesmen_capacities,
         &distance_fn,
-        &order,
+        order,
     )
 }
 
-pub fn get_fitness_of_ith_individual<F>(
-    i: usize,
-    individuals: &[usize],
-    block_size: usize,
-    points: &[(f32, f32)],
-    salesmen_capacities: &[usize],
-    distance_fn: &F,
-) -> f32
-where
-    F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
-{
-    let order = get_ith_block(i, individuals, block_size);
-    get_fitness(points, salesmen_capacities, distance_fn, order)
+fn crossover(order0: &[usize], order1: &[usize], start: usize, end: usize) -> Vec<usize> {
+    let order0 = order0.to_vec();
+    let order1 = order1.to_vec();
+    let length = order0.len();
+    let mut child = vec![length + 1; length]; // use length + 1 as placeholder
+                                              // fill in genome of first parent
+    child[start..end].copy_from_slice(&order0[start..end]);
+    // fill in genome of second parent
+    let mut j = 0;
+    for i in 0..length {
+        if child[i] == length + 1 {
+            // fillable slot found
+            let mut l_exit = false;
+            while !l_exit {
+                // check if vertex-index already included
+                if child.contains(&order1[j]) {
+                    j += 1;
+                } else {
+                    l_exit = true;
+                }
+            }
+            child[i] = order1[j];
+        }
+    }
+    child
+}
+
+fn mutate<T>(vec: &mut Vec<T>, salesmen_capacities: &[usize], rng: &mut Option<ChaCha8Rng>) {
+    if salesmen_capacities.len() == 1 {
+        return;
+    }
+    let mut si0 = 0;
+    let mut si1 = 0;
+    let mut i0 = 0;
+    let mut i1 = 0;
+    while si0 == si1 {
+        i0 = crate::utils::rand::chacha_rand_range(0, vec.len(), rng);
+        i1 = crate::utils::rand::chacha_rand_range(0, vec.len(), rng);
+        si0 = crate::utils::cluster::get_salesman_index(i0, &salesmen_capacities);
+        si1 = crate::utils::cluster::get_salesman_index(i1, &salesmen_capacities);
+    }
+    vec.swap(i0, i1);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_crossover() {
+        let order0 = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let order1 = vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+        let start = 3;
+        let end = 6;
+        let child = crossover(&order0, &order1, start, end);
+        assert_eq!(child, vec![9, 8, 7, 3, 4, 5, 6, 2, 1, 0]);
+    }
 }

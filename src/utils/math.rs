@@ -18,7 +18,6 @@ pub fn argmin(points: Vec<f32>) -> usize {
 
 pub fn argsort<T: Ord>(data: &[T]) -> Vec<usize> {
     let mut indices = (0..data.len()).collect::<Vec<_>>();
-    indices.sort_by_key(|&i| &data[i]);
-    indices.reverse();
+    indices.sort_by_key(|&i| std::cmp::Reverse(&data[i]));
     indices
 }
