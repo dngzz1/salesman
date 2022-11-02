@@ -13,7 +13,7 @@ fn draw_block(filename: &str) {
     let delta_row = 0.1;
     let block = Block::new_from_bool(pos_top_left, nx, ny, delta_col, delta_row, shape);
     let points = block.get_points(true);
-    let distance_fn = salesman::distance::landscape_euclidean;
+    let distance_fn = salesman::utils::distance::landscape_euclidean;
     let is_loop = false;
 
     let salesmen_capacities = {

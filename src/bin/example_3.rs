@@ -12,7 +12,7 @@ fn main() {
     shape[15] = false;
     let block = Block::new_from_bool(pos_top_left, n_cols, n_rows, delta_col, delta_row, shape);
     let points = block.get_points(true);
-    let distance_fn = salesman::distance::portrait_euclidean;
+    let distance_fn = salesman::utils::distance::portrait_euclidean;
     let is_loop = false;
 
     let salesmen_capacities = vec![12, 6, 6, 6, 5];

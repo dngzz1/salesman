@@ -4,7 +4,7 @@ fn main() {
     let seed = Some(42);
     let intensity = 10.0;
     let points = salesman::example::rand_points(num_points, seed);
-    let distance_fn = salesman::distance::euclidean;
+    let distance_fn = salesman::utils::distance::euclidean;
     let is_loop = false;
 
     let salesmen_capacities = [12, 12, 10, 8, 8, 6, 4];

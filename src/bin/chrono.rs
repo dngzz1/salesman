@@ -9,7 +9,7 @@ fn time_cluster_duration_varying_num_points() {
     let arr = [20, 40, 80, 160, 320, 640];
     let intensity = 10.0;
     let seed = Some(42);
-    let distance_fn = salesman::distance::euclidean;
+    let distance_fn = salesman::utils::distance::euclidean;
     for num_points in arr {
         let rand_points = salesman::example::rand_points(num_points, seed);
         let salesmen_capacities = [num_points / 4; 4];
@@ -33,7 +33,7 @@ fn time_cluster_duration_varying_num_points() {
 fn time_cluster_duration_varying_intensity() {
     let arr = [10., 10.5, 11., 11.5, 12.];
     let num_points = 40;
-    let distance_fn = salesman::distance::euclidean;
+    let distance_fn = salesman::utils::distance::euclidean;
 
     let seed = Some(42);
     let rand_points = salesman::example::rand_points(num_points, seed);
@@ -62,8 +62,10 @@ fn time_salesman_duration() {
     let seed = Some(42);
     for num_points in arr {
         let rand_points = salesman::example::rand_points(num_points, seed);
-        let distances =
-            salesman::distance::make_distance_vec(&rand_points, &salesman::distance::euclidean);
+        let distances = salesman::utils::distance::make_distance_vec(
+            &rand_points,
+            &salesman::utils::distance::euclidean,
+        );
         let f = || {
             salesman::anneal::path::shortest_path(&rand_points, &distances, 1, true, seed);
         };

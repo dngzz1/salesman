@@ -41,7 +41,7 @@ pub fn disconnect_longest_string(points: &[(f32, f32)], order: &[usize]) -> Vec<
     for i in 0..n {
         let p = points[order[i]];
         let q = points[order[(i + 1) % n]];
-        let distance = crate::distance::euclidean(p, q);
+        let distance = crate::utils::distance::euclidean(p, q);
         if distance > length_of_longest_string {
             index_of_longest_string = i;
             length_of_longest_string = distance;

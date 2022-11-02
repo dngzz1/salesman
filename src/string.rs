@@ -37,7 +37,7 @@ where
         for j in range_start..range_end {
             filtered_points.push(points[clustered_order[j]]);
         }
-        let distances = crate::distance::make_distance_vec(&filtered_points, distance_fn);
+        let distances = crate::utils::distance::make_distance_vec(&filtered_points, distance_fn);
         let slice_order = crate::anneal::path::shortest_path_order(
             &filtered_points,
             &distances,

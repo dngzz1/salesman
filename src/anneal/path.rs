@@ -126,7 +126,7 @@ fn path_order_once(
     let intensity = 10.0_f32; // costs more computational time
     let temp_coeff = 1.0 - (-intensity).exp();
 
-    let mut temperature = 100.0 * crate::distance::euclidean(path.access(0), path.access(1));
+    let mut temperature = 100.0 * crate::utils::distance::euclidean(path.access(0), path.access(1));
     while temperature > 1e-6 {
         path.change(temperature);
         temperature *= temp_coeff;
@@ -164,15 +164,25 @@ pub fn shortest_path_order(
     is_loop: bool,
     seed: Option<u64>,
 ) -> Vec<usize> {
+    let length = points.len();
     let mut loop_distances = Vec::new();
     let mut orders = Vec::new();
     for _ in 0..num_times {
         let order = path_order_once(points, distances, true, is_loop, seed);
         orders.push(order.clone());
-        let path = get_path_from_order(points, &order);
-        loop_distances.push(crate::utils::loop_distance(&path));
+        let total_distance = {
+            let mut sum = 0.;
+            for i in 0..(order.len() - 1) {
+                sum += distances[i * length + (i + 1)];
+            }
+            if is_loop {
+                sum += distances[0 * length + (length - 1)];
+            }
+            sum
+        };
+        loop_distances.push(total_distance);
     }
-    let argmin = crate::utils::argmin(loop_distances);
+    let argmin = crate::utils::math::argmin(loop_distances);
     orders[argmin].clone()
 }
 

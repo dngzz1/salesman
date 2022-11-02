@@ -11,7 +11,7 @@ fn main() {
         (0.6, 0.6),
     ];
     let salesmen_capacities = vec![3, 3];
-    let distance_fn = salesman::distance::euclidean;
+    let distance_fn = salesman::utils::distance::euclidean;
     let is_loop = false;
 
     let order = salesman::string::get_string_order(
