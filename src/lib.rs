@@ -1,6 +1,5 @@
 pub mod anneal;
 pub mod block;
-pub mod cluster;
 pub mod distance;
 pub mod example;
 mod permute;

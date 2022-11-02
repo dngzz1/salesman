@@ -14,7 +14,7 @@ fn time_cluster_duration_varying_num_points() {
         let rand_points = salesman::example::rand_points(num_points, seed);
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
-            salesman::cluster::cluster_order(
+            salesman::anneal::cluster::cluster_order(
                 &rand_points,
                 &salesmen_capacities,
                 &distance_fn,
@@ -40,7 +40,7 @@ fn time_cluster_duration_varying_intensity() {
     for intensity in arr {
         let salesmen_capacities = [num_points / 4; 4];
         let f = || {
-            salesman::cluster::cluster_order(
+            salesman::anneal::cluster::cluster_order(
                 &rand_points,
                 &salesmen_capacities,
                 &distance_fn,
@@ -65,7 +65,7 @@ fn time_salesman_duration() {
         let distances =
             salesman::distance::make_distance_vec(&rand_points, &salesman::distance::euclidean);
         let f = || {
-            salesman::anneal::shortest_path(&rand_points, &distances, 1, true, seed);
+            salesman::anneal::path::shortest_path(&rand_points, &distances, 1, true, seed);
         };
         println!(
             "Salesman with {} points: {} milliseconds.",

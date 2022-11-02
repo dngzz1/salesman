@@ -4,8 +4,9 @@ fn main() {
     let rand_points = salesman::example::rand_points(20, seed);
     let distance_fn = salesman::distance::euclidean;
     let distances = salesman::distance::make_distance_vec(&rand_points, &distance_fn);
-    let order = salesman::anneal::shortest_path_order(&rand_points, &distances, 2, true, seed);
-    let points = salesman::anneal::get_path_from_order(&rand_points, &order);
+    let order =
+        salesman::anneal::path::shortest_path_order(&rand_points, &distances, 2, true, seed);
+    let points = salesman::anneal::path::get_path_from_order(&rand_points, &order);
     plot_hamiltonian_loop(&points);
 }
 

@@ -23,8 +23,13 @@ pub fn get_string_order<F>(
 where
     F: Fn((f32, f32), (f32, f32)) -> f32 + Clone,
 {
-    let mut clustered_order =
-        crate::cluster::cluster_order(points, salesmen_capacities, distance_fn, intensity, seed);
+    let mut clustered_order = crate::anneal::cluster::cluster_order(
+        points,
+        salesmen_capacities,
+        distance_fn,
+        intensity,
+        seed,
+    );
     for i in 0..salesmen_capacities.len() {
         let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
         let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();
@@ -33,8 +38,13 @@ where
             filtered_points.push(points[clustered_order[j]]);
         }
         let distances = crate::distance::make_distance_vec(&filtered_points, distance_fn);
-        let slice_order =
-            crate::anneal::shortest_path_order(&filtered_points, &distances, 3, is_loop, seed);
+        let slice_order = crate::anneal::path::shortest_path_order(
+            &filtered_points,
+            &distances,
+            3,
+            is_loop,
+            seed,
+        );
         clustered_order = crate::permute::permute_slice(
             &clustered_order,
             &(range_start..range_end).collect::<Vec<usize>>().to_vec(),

@@ -29,6 +29,3 @@ where
     }
     distances
 }
-
-#[cfg(test)]
-mod test_distance;
