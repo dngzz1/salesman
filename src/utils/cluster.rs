@@ -53,6 +53,7 @@ where
     result
 }
 
+#[allow(dead_code)]
 fn get_salesman_index(i: usize, salesmen_capacities: &[usize]) -> usize {
     let mut index = 0;
     while salesmen_capacities[0..(index + 1)].iter().sum::<usize>() - 1 < i {

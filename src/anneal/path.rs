@@ -147,9 +147,9 @@ fn path_order_once(
 /// If is_loop is set to false, then the function will additionally permute order so that the longest segment has endpoints at the opposite end of vector slice.
 /// If seed is set to None, thread_rng() will be used.
 /// ```
-/// use salesman::anneal::shortest_path_order;
+/// use salesman::anneal::path::shortest_path_order;
 /// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
-/// let distances = salesman::distance::make_distance_vec(&points, &salesman::distance::euclidean);
+/// let distances = salesman::utils::distance::make_distance_vec(&points, &salesman::utils::distance::euclidean);
 /// let num_times = 1;
 /// let is_loop = false;
 /// let seed = Some(42);
@@ -189,9 +189,9 @@ pub fn shortest_path_order(
 /// Returns the path for the salesman to traverse based on simulated annealing. See [shortest_path_order].
 /// # Examples
 /// ```
-/// use salesman::anneal::shortest_path;
+/// use salesman::anneal::path::shortest_path;
 /// let points = vec![(0.1,-0.1), (0.5,0.25), (0.,0.32), (0.3,0.1)];
-/// let distances = salesman::distance::make_distance_vec(&points, &salesman::distance::euclidean);
+/// let distances = salesman::utils::distance::make_distance_vec(&points, &salesman::utils::distance::euclidean);
 /// let num_times = 1;
 /// let is_loop = false;
 /// let seed = Some(42);
@@ -212,7 +212,7 @@ pub fn shortest_path(
 
 /// Reorders the points.
 /// ```
-/// use salesman::anneal::get_path_from_order;
+/// use salesman::anneal::path::get_path_from_order;
 /// let points = vec![(0.,0.), (10.,0.), (30.,0.), (50.,0.)];
 /// let order = vec![1, 3, 0, 2];
 /// let reordered_points = get_path_from_order(&points, &order);

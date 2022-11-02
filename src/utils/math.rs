@@ -1,14 +1,5 @@
 use ordered_float::NotNan;
 
-pub fn loop_distance(points: &[(f32, f32)]) -> f32 {
-    let mut sum = 0.0;
-    for i in 0..points.len() {
-        let j = (i + 1) % points.len();
-        sum += crate::utils::distance::euclidean(points[i], points[j]);
-    }
-    sum
-}
-
 pub fn argmin(points: Vec<f32>) -> usize {
     let non_nan_floats: Vec<_> = points
         .iter()

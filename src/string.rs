@@ -4,7 +4,7 @@
 /// use salesman::string::get_string_order;
 /// let points = vec![(-0.5, -0.5), (-0.6, -0.5), (-0.6, -0.4), (0.5, 0.5), (0.6, 0.5), (0.6, 0.6)];
 /// let salesmen_capacities = vec![3, 3];
-/// let distance_fn = salesman::distance::euclidean;
+/// let distance_fn = salesman::utils::distance::euclidean;
 /// let is_loop = false;
 /// let intensity = 11.0;
 /// let seed = Some(42);

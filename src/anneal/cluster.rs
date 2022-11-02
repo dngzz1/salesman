@@ -61,7 +61,7 @@ where
         self.order.swap(i, j);
     }
 
-    fn delta_distance_slow(&self, i: usize, j: usize) -> f32 {
+    fn delta_distance(&self, i: usize, j: usize) -> f32 {
         let original_order = &self.order;
         let swapped_order;
         {
@@ -87,7 +87,7 @@ where
     fn change(&mut self, temp: f32) {
         let i = self.random_pos();
         let j = self.random_pos();
-        let delta = self.delta_distance_slow(i, j);
+        let delta = self.delta_distance(i, j);
         let r: f32 = match &mut self.rng {
             Some(chacha) => chacha.gen(),
             None => rand::thread_rng().gen(),
@@ -100,10 +100,10 @@ where
 
 /// Reorders the points so that nearby points are grouped together.
 /// ```
-/// use salesman::cluster::cluster_order;
+/// use salesman::anneal::cluster::cluster_order;
 /// let points = vec![(-0.5, -0.5), (0.5, 0.5), (-0.6, -0.5), (0.5, 0.6)];
 /// let salesmen_capacities = vec![2, 2];
-/// let distance_fn = salesman::distance::euclidean;
+/// let distance_fn = salesman::utils::distance::euclidean;
 /// let intensity = 10.0;
 /// let seed = None;
 /// let order = cluster_order(&points, &salesmen_capacities, &distance_fn, intensity, seed);

@@ -22,3 +22,24 @@ pub fn get_points(num_points: usize, seed: Option<u64>) -> Vec<(f32, f32)> {
     }
     points
 }
+
+/// shuffles a vector using chacha if rng.is_some(), else use thread_rng()
+pub fn shuffle_by_chacha_or<T>(vec: &mut [T], rng: &mut Option<ChaCha8Rng>) {
+    match rng {
+        Some(chacha) => vec.shuffle(chacha),
+        None => vec.shuffle(&mut thread_rng()),
+    }
+}
+
+pub fn chacha_rand_range(start: usize, end: usize, rng: &mut Option<ChaCha8Rng>) -> usize {
+    match rng {
+        Some(chacha) => chacha.gen_range(start..end),
+        None => thread_rng().gen_range(start..end),
+    }
+}
+
+pub fn choose_mut<'a, T>(vec: &'a mut [T], rng: &mut Option<ChaCha8Rng>) -> &'a mut T {
+    let n = vec.len();
+    let i = chacha_rand_range(0, n, rng);
+    &mut vec[i]
+}
