@@ -8,27 +8,29 @@ Given $n$ cities and $k$ salesmen, each needing to visit exactly $n_1, ..., n_k$
 
 Suppose we have 6 cities and 2 salesmen, each needing to visit 3 cities. Make sure the directory `./images/example_0/` exists.
 
-    use salesman::string::get_string_order;
-    use salesman::plot::plot_strings;
+```rust
+use salesman::string::get_string_order;
+use salesman::plot::plot_strings;
 
-    let points = vec![(-0.5, -0.5), (-0.6, -0.5), (-0.6, -0.4), (0.5, 0.5), (0.6, 0.5), (0.6, 0.6)];
-    let salesmen_capacities = vec![3, 3];
-    let intensity = 10.0;
-    let seed = Some(42);
-    let order = get_string_order(&points, &salesmen_capacities, intensity, seed);
-    assert!(&order[0..3] == &vec![0, 1, 2] || &order[0..3] == &vec![2, 1, 0]);
-    assert!(&order[3..6] == &vec![3, 4, 5] || &order[3..6] == &vec![5, 4, 3]);
+let points = vec![(-0.5, -0.5), (-0.6, -0.5), (-0.6, -0.4), (0.5, 0.5), (0.6, 0.5), (0.6, 0.6)];
+let salesmen_capacities = vec![3, 3];
+let intensity = 10.0;
+let seed = Some(42);
+let order = get_string_order(&points, &salesmen_capacities, intensity, seed);
+assert!(&order[0..3] == &vec![0, 1, 2] || &order[0..3] == &vec![2, 1, 0]);
+assert!(&order[3..6] == &vec![3, 4, 5] || &order[3..6] == &vec![5, 4, 3]);
 
-    // Now save image to png.
-    plot_strings(
-        &points,
-        &order,
-        &salesmen_capacities,
-        false,
-        true,
-        "example_0/open_strings",
-        "Open Strings",
-    );
+// Now save image to png.
+plot_strings(
+    &points,
+    &order,
+    &salesmen_capacities,
+    false,
+    true,
+    "example_0/open_strings",
+    "Open Strings",
+);
+```
 
 This will create an image file `./images/example_0/open_strings.png` which should look like the following.
 
@@ -76,6 +78,66 @@ If we don't require the salesmen to return to the original position, a good enou
 ## Multiple Salesmen: Example 2
 
 Here's another example.
+
+```rust
+use salesman::plot::plot_strings;
+fn main() {
+    let num_points = 60;
+    let seed = Some(42);
+    let intensity = 10.0;
+    let points = salesman::utils::rand::get_points(num_points, seed);
+    let distance_fn = salesman::utils::distance::euclidean;
+    let salesmen_capacities = [12, 12, 10, 8, 8, 6, 4];
+
+    let is_loop = true;
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        is_loop,
+        intensity,
+        seed,
+    );
+    plot_strings(
+        &points,
+        &order,
+        &salesmen_capacities,
+        true,
+        false,
+        "example_2/clusters",
+        "Clusters",
+    );
+    plot_strings(
+        &points,
+        &order,
+        &salesmen_capacities,
+        is_loop,
+        true,
+        "example_2/closed_strings",
+        "Closed Strings",
+    );
+
+    let is_loop = false;
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        is_loop,
+        intensity,
+        seed,
+    );
+    plot_strings(
+        &points,
+        &order,
+        &salesmen_capacities,
+        is_loop,
+        true,
+        "example_2/open_strings",
+        "Open Strings",
+    );
+}
+
+```
 
 <p align="center">
 <img src="images/example_2/closed_strings.png" width="300" height="300">
