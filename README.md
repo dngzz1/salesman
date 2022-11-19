@@ -143,7 +143,7 @@ fn main() {
 <img src="images/example_2/closed_strings.png" width="300" height="300">
 </p>
 
-This time, for open strings, instead of removing the longest string, we run simulated annealing from scratch. We clearly get better results.
+This time, for open strings, instead of removing the longest string, we ran simulated annealing from scratch. We clearly get better results.
 
 <p align="center">
 <img src="images/example_2/open_strings.png" width="300" height="300">
