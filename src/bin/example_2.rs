@@ -5,9 +5,9 @@ fn main() {
     let intensity = 10.0;
     let points = salesman::utils::rand::get_points(num_points, seed);
     let distance_fn = salesman::utils::distance::euclidean;
-    let is_loop = false;
-
     let salesmen_capacities = [12, 12, 10, 8, 8, 6, 4];
+
+    let is_loop = true;
     let order = salesman::string::get_string_order(
         &points,
         &salesmen_capacities,
@@ -29,16 +29,26 @@ fn main() {
         &points,
         &order,
         &salesmen_capacities,
-        true,
+        is_loop,
         true,
         "example_2/closed_strings",
         "Closed Strings",
+    );
+
+    let is_loop = false;
+    let order = salesman::string::get_string_order(
+        &points,
+        &salesmen_capacities,
+        &distance_fn,
+        is_loop,
+        intensity,
+        seed,
     );
     plot_strings(
         &points,
         &order,
         &salesmen_capacities,
-        false,
+        is_loop,
         true,
         "example_2/open_strings",
         "Open Strings",
