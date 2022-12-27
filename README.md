@@ -59,7 +59,7 @@ We can also run the algorithm for open strings, by setting `is_loop = false` ins
 
 ## Multiple salesmen: Example 2
 
-40 cities, 5 salesmen, 8 cities each:
+40 cities, 5 salesmen, 8 cities each, closed:
 
 <p align="center">
 <img src="images/read_me/five.svg" width="300" height="300">
@@ -67,7 +67,7 @@ We can also run the algorithm for open strings, by setting `is_loop = false` ins
 
 ## Multiple salesmen: Example 3
 
-100 cities, 10 salesmen, 10 cities each:
+100 cities, 10 salesmen, 10 cities each, open:
 
 <p align="center">
 <img src="images/read_me/ten.svg" width="300" height="300">
