@@ -53,13 +53,13 @@ where
     result
 }
 
-pub fn get_salesman_index(i: usize, salesmen_capacities: &[usize]) -> usize {
-    let mut index = 0;
-    while salesmen_capacities[0..(index + 1)].iter().sum::<usize>() - 1 < i {
-        index += 1;
-    }
-    index
-}
+// pub fn get_salesman_index(i: usize, salesmen_capacities: &[usize]) -> usize {
+//     let mut index = 0;
+//     while salesmen_capacities[0..(index + 1)].iter().sum::<usize>() - 1 < i {
+//         index += 1;
+//     }
+//     index
+// }
 
 #[cfg(test)]
 mod test {
@@ -99,16 +99,16 @@ mod test {
         );
     }
 
-    #[test]
-    fn test_get_salesman_index() {
-        let salesmen_capacities = vec![10, 5, 5];
-        assert_eq!(get_salesman_index(0, &salesmen_capacities), 0);
-        assert_eq!(get_salesman_index(1, &salesmen_capacities), 0);
-        assert_eq!(get_salesman_index(9, &salesmen_capacities), 0);
-        assert_eq!(get_salesman_index(10, &salesmen_capacities), 1);
-        assert_eq!(get_salesman_index(14, &salesmen_capacities), 1);
-        assert_eq!(get_salesman_index(15, &salesmen_capacities), 2);
-        assert_eq!(get_salesman_index(16, &salesmen_capacities), 2);
-        assert_eq!(get_salesman_index(19, &salesmen_capacities), 2);
-    }
+    // #[test]
+    // fn test_get_salesman_index() {
+    //     let salesmen_capacities = vec![10, 5, 5];
+    //     assert_eq!(get_salesman_index(0, &salesmen_capacities), 0);
+    //     assert_eq!(get_salesman_index(1, &salesmen_capacities), 0);
+    //     assert_eq!(get_salesman_index(9, &salesmen_capacities), 0);
+    //     assert_eq!(get_salesman_index(10, &salesmen_capacities), 1);
+    //     assert_eq!(get_salesman_index(14, &salesmen_capacities), 1);
+    //     assert_eq!(get_salesman_index(15, &salesmen_capacities), 2);
+    //     assert_eq!(get_salesman_index(16, &salesmen_capacities), 2);
+    //     assert_eq!(get_salesman_index(19, &salesmen_capacities), 2);
+    // }
 }

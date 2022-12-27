@@ -53,3 +53,26 @@ where
     }
     clustered_order
 }
+
+pub fn get_stringing(
+    points: &[(f32, f32)],
+    salesmen_capacities: &[usize],
+    order: &[usize],
+    is_loop: bool,
+) -> Vec<Vec<(f32, f32)>> {
+    let mut stringing = Vec::new();
+    for i in 0..salesmen_capacities.len() {
+        let range_start = salesmen_capacities[0..i].iter().sum::<usize>();
+        let range_end = salesmen_capacities[0..(i + 1)].iter().sum::<usize>();
+        let range = range_start..range_end;
+        let mut filtered_points = Vec::new();
+        for i in range {
+            filtered_points.push(points[order[i]]);
+        }
+        if is_loop {
+            filtered_points.push(filtered_points[0]);
+        }
+        stringing.push(filtered_points);
+    }
+    stringing
+}
